@@ -27,3 +27,4 @@ for ((i = 0; i < ${#array_list_file_backup_tar_gz[@]}; i++)); do
     echo "Success"
 done
 
+ 
