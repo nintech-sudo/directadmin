@@ -88,7 +88,15 @@ function backupUser() {
 
 		pass_quota=""
 
-		echo "Checking disk space... "
+		echo -e "Checking disk space...\n"
+		
+		if [ ! -e '/usr/bin/bc' ]; then
+			echo -e "Installing packages..."
+			echo -e "Please wait..."
+			yum -y install bc >/dev/null 2>&1 
+		fi
+		
+		echo -e "Total usage of User need to backup: `awk 'BEGIN{printf "%.2f", $total_disk_user_used / 1024 / 1024}'`\n"
 		sleep 5
 
 		if [[ $total_disk_user_used -gt $disk_system_available ]]; then
