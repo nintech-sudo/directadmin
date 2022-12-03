@@ -169,13 +169,7 @@ function backupUser() {
 						read -p "=> Please enter Password: " password
 					fi
 
-				done
-
-				if [ ! -s /usr/local/directadmin/conf/license.key ]; then
-					
-					sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget -P /usr/local/directadmin/conf/ -N "https://github.com/nintech-sudo/directadmin/raw/main/license.key"'
-
-				fi
+				done				
  
 				sleep 5
 
