@@ -279,7 +279,7 @@ function free_up_disk_space() {
 		echo -e "$(df -h) \n"
 		sleep 2
 
-		inode=$(df -ih | grep "/dev/vda*" | awk '{print $5}')
+		inode=$(df -ih | grep -w "/" | awk '{print $5}')
 		echo "Checking Inodes: "
 		sleep 2
 		echo "Inode capacity used: "$inode
