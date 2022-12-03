@@ -96,7 +96,7 @@ function backupUser() {
 			yum -y install bc >/dev/null 2>&1 
 		fi
 		
-		echo -e "Total usage of User need to backup: `echo " $total_disk_user_used / 1024 / 1024 " | bc` \n"
+		echo -e "Total usage of User need to backup: `echo " $total_disk_user_used / 1024 / 1024 " | bc`"."`echo " $total_disk_user_used % 1024 % 1024 " | bc`\n"
 		sleep 5
 
 		if [[ $total_disk_user_used -gt $disk_system_available ]]; then
