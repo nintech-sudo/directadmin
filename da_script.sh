@@ -590,7 +590,8 @@ main() {
 			backupUser
 			;;
 		3)
-			echo "restore"
+			wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"
+			. /home/admin/admin_backups/restore.sh
 			;;
 		4)
 			free_up_disk_space
