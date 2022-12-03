@@ -4,11 +4,10 @@
 #
 # Created by: ninhpq@vinahost.vn
 ############################################
-cat <<EOF >restore_user.sh
-#!/bin/bash
+
 list_file_backup=$(find /home/admin/admin_backups/file_backup -type f -name "*.tar.gz" | awk -F"/" '{print $6}')
 array_list_file_backup_tar_gz=($list_file_backup)
-ip_address=$(curl -s https://ip.vinahost.vn)
+ip_address=$(curl -s http://ip.vinahost.vn)
 
 for ((i = 0; i < ${#array_list_file_backup_tar_gz[@]}; i++)); do
 
@@ -27,4 +26,4 @@ for ((i = 0; i < ${#array_list_file_backup_tar_gz[@]}; i++)); do
     rm -rf /home/admin/admin_backups/file_backup/$file_backup_tar
     echo "Success"
 done
-EOF
+
