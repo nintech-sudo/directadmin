@@ -205,7 +205,7 @@ function backupUser() {
 								tmp=$(cat /tmp/rsynlog.txt)
 								echo $tmp
 								c=$(expr $c + 1)
-							elif [  -s /tmp/rsynlog.txt ] && [ "$(grep -w "POSSIBLE BREAK-IN ATTEMPT" /tmp/sshpasslog.txt)" == "POSSIBLE BREAK-IN ATTEMPT" ]; then
+							elif [  -s /tmp/rsynlog.txt ] && [ "$(grep -w "POSSIBLE BREAK-IN ATTEMPT" /tmp/rsynlog.txt)" == "POSSIBLE BREAK-IN ATTEMPT" ]; then
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
