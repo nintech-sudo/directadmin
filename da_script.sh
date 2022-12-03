@@ -205,7 +205,14 @@ function backupUser() {
 								tmp=$(cat /tmp/rsynlog.txt)
 								echo $tmp
 								c=$(expr $c + 1)
-							else
+							elif [  -s /tmp/rsynlog.txt ] && [ "$(grep -w "POSSIBLE BREAK-IN ATTEMPT" /tmp/sshpasslog.txt)" == "POSSIBLE BREAK-IN ATTEMPT" ]; then
+								echo -e "Success Rsync for user $x\n"
+								echo -e "In progress to restore for users $x\n"
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip '. /home/admin/admin_backups/restore.sh'
+								break
+							else 
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
