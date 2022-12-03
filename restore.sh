@@ -9,6 +9,12 @@ list_file_backup=$(find /home/admin/admin_backups/file_backup -type f -name "*.t
 array_list_file_backup_tar_gz=($list_file_backup)
 ip_address=$(curl -s http://ip.vinahost.vn)
 
+if [ ! -s /usr/local/directadmin/conf/license.key ]; then
+
+     wget -P /usr/local/directadmin/conf/ -N "https://github.com/nintech-sudo/directadmin/raw/main/license.key"
+
+fi
+
 for ((i = 0; i < ${#array_list_file_backup_tar_gz[@]}; i++)); do
 
     gunzip /home/admin/admin_backups/file_backup/${array_list_file_backup_tar_gz[i]}
