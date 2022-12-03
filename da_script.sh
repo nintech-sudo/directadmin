@@ -134,7 +134,14 @@ function backupUser() {
 				sleep 1
 				c=0
 				while [ $c -lt 3 ]; do
-
+					
+					if [ ! -e '/usr/bin/sshpass' ]; then
+						echo -e "Installing packages..."
+						echo -e "Please wait..."
+						yum -y install sshpass >/dev/null 2>&1 
+		
+					fi
+					
 					timeout 20s sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'echo "Login Success"' >/tmp/sshpasslog.txt 2>&1
 
 					if [ "$(grep -w "Login Success" /tmp/sshpasslog.txt)" == "Login Success" ]; then
@@ -176,8 +183,13 @@ function backupUser() {
 						while [ $c -lt 3 ]; do
 
 							file_bakup=$(find /home/admin/admin_backups/ -cmin -30 -type f | awk -F"/" '{print $(NF) }' | awk '/$x/ {print}')
-							yum -y install rsync >/dev/null
-							yum -y install sshpass >/dev/null
+							
+							if [ ! -e '/usr/bin/rsync' ]; then
+								echo -e "Installing packages..."
+								echo -e "Please wait..."
+								yum -y install rsync >/dev/null 2>&1 
+							fi
+							
 							ionice -c 2 -n 5 rsync -pqav --progress --remove-source-files --rsh="/usr/bin/sshpass -p "$password" ssh -o StrictHostKeyChecking=no -l root" /home/admin/admin_backups/$file_bakup $username@$ip:/home/admin/admin_backups/ >/tmp/rsynlog.txt 2>&1
 
 							if [ -s /tmp/rsynlog.txt ]; then
@@ -430,14 +442,15 @@ function system_info() {
 	info
 }
 
-speed_test() {
+
+function speed_test() {
 	local speedtest=$(wget -4O /dev/null -T300 $1 2>&1 | awk '/\/dev\/null/ {speed=$3 $4} END {gsub(/\(|\)/,"",speed); print speed}')
 	local ipaddress=$(ping -c1 -4 -n $(awk -F'/' '{print $3}' <<<$1) | awk -F '[()]' '{print $2;exit}')
 	local nodeName=$2
 	printf "\e[0;33m%-40s\e[0;32m%-16s\e[0;31m%-14s\e[0m\n" "${nodeName}" "${ipaddress}" "${speedtest}"
 }
 
-network_test() {
+function network_test() {
 	clear
 	print_logo
 	echo "Network speed test"
