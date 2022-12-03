@@ -239,8 +239,6 @@ function backupUser() {
 					for x in ${choose_user[@]}; do
 						echo "action=backup&append%5Fto%5Fpath=nothing&database%5Fdata%5Faware=yes&email%5Fdata%5Faware=yes&local%5Fpath=%2Fhome%2Fadmin%2Fadmin%5Fbackups%2Ffile%5Fbackup&owner=admin&select%30=$x&type=admin&value=multiple&when=now&where=local" >>/usr/local/directadmin/data/task.queue
 						/usr/local/directadmin/dataskq d2000
-
-						read
 					done
 				else
 					echo -e "Can't creating a backup file for user \e[0;31m${choose_user[@]}\e[0m ...\n"
