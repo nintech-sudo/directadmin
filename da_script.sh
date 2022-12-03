@@ -200,18 +200,19 @@ function backupUser() {
 							
 							ionice -c 2 -n 5 rsync -pqav --progress --remove-source-files --rsh="/usr/bin/sshpass -p "$password" ssh -o StrictHostKeyChecking=no -l root" /home/admin/admin_backups/$file_bakup $username@$ip:/home/admin/admin_backups/ >/tmp/rsynlog.txt 2>&1
 
-							if [ -s /tmp/rsynlog.txt ]; then
-								echo "Failed"
-								tmp=$(cat /tmp/rsynlog.txt)
-								echo $tmp
-								c=$(expr $c + 1)
-							elif [  -s /tmp/rsynlog.txt ] && [ "$(grep -w "POSSIBLE BREAK-IN ATTEMPT" /tmp/rsynlog.txt)" == "POSSIBLE BREAK-IN ATTEMPT" ]; then
+							
+							if [  -s /tmp/rsynlog.txt ] && [ "$(grep -wi "failed - POSSIBLE BREAK-IN ATTEMPT" /tmp/rsynlog.txt | awk -F"-" '{print $2}')" == " POSSIBLE BREAK" ]; then
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip '. /home/admin/admin_backups/restore.sh'
 								break
+							elif [ -s /tmp/rsynlog.txt ]; then
+								echo "Failed"
+								tmp=$(cat /tmp/rsynlog.txt)
+								echo $tmp
+								c=$(expr $c + 1)
 							else 
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n"
