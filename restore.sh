@@ -18,7 +18,6 @@ fi
 
 if [ ${#array_list_file_backup_tar_gz[@]} -eq 0 ]; then
     echo -e "No such file backup!\n"
-    echo -e "Make sure the backup file is in the format: type.owner.user.tar.gz and is located in /home/admin/admin_backups/file_backup\n"
     return 
 else
     for ((i = 0; i < ${#array_list_file_backup_tar_gz[@]}; i++)); do
