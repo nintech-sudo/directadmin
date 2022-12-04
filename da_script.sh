@@ -473,23 +473,23 @@ function createSwap() {
 		case $select in
 		1024)
 			echo "Creating Swap 1GB"
-			create_swap
+			create_swap;
 			break
 			;;
 
 		2048)
 			echo -e "Creating Swap 2GB"
-			create_swap
+			create_swap;
 			break
 			;;
 		3072)
 			echo -e "Creating Swap 3GB"
-			create_swap
+			create_swap;
 			break
 			;;
 		4096)
 			echo -e "Creating Swap 4GB"
-			create_swap
+			create_swap;
 			break
 			;;
 		0)
