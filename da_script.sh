@@ -470,65 +470,40 @@ function createSwap() {
 		echo -e "1024=1GB; 2048=2GB; 3072=3GB; 4096=4GB\n"
 		read -p "How much Swaps do you need to create? : " select
 		echo ""
-		case $select in
-		1024)
-			echo -e "Creating Swap 1GB\n"
-			create_swap
-			break
-			;;
+		if [ $select -eq 1024 ] || [ $select -eq 2048 ] || [ $select -eq 3072 ] || [ $select -eq 4096 ]; then
 
-		2048)
-			echo -e "Creating Swap 2GB\n"
-			create_swap
-			break
-			;;
-		3072)
-			echo -e "Creating Swap 3GB\n"
-			create_swap
-			break
-			;;
-		4096)
-			echo -e "Creating Swap 4GB\n"
-			create_swap
-			break
-			;;
-		0)
-			echo -e "Exit"
+			#Xoa swap neu da ton tai
+			if [ ! ${#list_swapon[@]} -eq 0 ]; then
+				echo -e "Removing installed Swap\n"
+				for ((i = 0; i < ${#list_swapon[@]}; i++)); do
+
+					swapoff -v ${list_swapon[i]}
+					sed -i '/swap/d' /etc/fstab
+					rm -rf ${list_swapon[i]}
+				done
+			fi
+			echo ""
+			echo -e "Creating Swap...\n"
+			sleep 2
+			dd if=/dev/zero of=/swapfile bs=1024 count=$(expr $select \* 1024)
+			chown root:root /swapfile
+			chmod 600 /swapfile
+			mkswap /swapfile
+			swapon /swapfile 
+			echo "/swapfile   none    swap    sw    0   0" | sudo tee -a /etc/fstab >/dev/null
+			sed -i '/vm.swappiness/d' /etc/sysctl.conf >/dev/null
+			sysctl vm.swappiness=10 >/dev/null
+			echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf >/dev/null
+			sed 's/vm.swappiness =.*/vm.swappiness = 10/g' /usr/lib/tuned/virtual-guest/tuned.conf >/dev/null
+			echo ""
+			echo -e "Show Ram Infomation...\n"
+			sleep 2
+			free -h
+			echo ""
 			return
-			;;
-		*) echo -e "\e[0;31mIncorrect value\e[0m, Enter again! \n" ;;
-		esac
-	done
-
-	function create_swap() {
-
-		#Xoa swap neu da ton tai
-		if [ ! ${#list_swapon[@]} -eq 0 ]; then
-			echo -e "Removing installed Swap "
-			for ((i = 0; i < ${#list_swapon[@]}; i++)); do
-
-				swapoff -v ${list_swapon[i]}
-				sed -i '/swap/d' /etc/fstab
-				rm -rf ${list_swapon[i]}
-			done
 		fi
-		dd if=/dev/zero of=/swapfile bs=1024 count=$(expr $select \* 1024)
-		chown root:root /swapfile
-		chmod 600 /swapfile
-		mkswap /swapfile
-		swapon /swapfile
-		echo "/swapfile   none    swap    sw    0   0" | sudo tee -a /etc/fstab
-		sed -i '/vm.swappiness/d' /etc/sysctl.conf
-		sysctl vm.swappiness=10
-		echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf
-		sed 's/vm.swappiness =.*/vm.swappiness = 10/g' /usr/lib/tuned/virtual-guest/tuned.conf
-		echo -e "Show Ram Infomation...\n"
-		sleep 2
-		free -h
-		echo ""
 
-	}
-
+	done
 }
 
 function speed_test() {
