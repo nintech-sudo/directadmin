@@ -89,14 +89,14 @@ function backupUser() {
 		pass_quota=""
 
 		echo -e "Checking disk space...\n"
-		
+
 		if [ ! -e '/usr/bin/bc' ]; then
 			echo -e "Installing packages..."
 			echo -e "Please wait..."
-			yum -y install bc >/dev/null 2>&1 
+			yum -y install bc >/dev/null 2>&1
 		fi
-		
-		echo -e "Total usage of User need to backup: `awk 'BEGIN{printf "%.2f", '$total_disk_user_used'/1024/1024}'`Gb\n"
+
+		echo -e "Total usage of User need to backup: $(awk 'BEGIN{printf "%.2f", '$total_disk_user_used'/1024/1024}')Gb\n"
 		sleep 5
 
 		if [[ $total_disk_user_used -gt $disk_system_available ]]; then
@@ -121,7 +121,7 @@ function backupUser() {
 		fi
 
 	}
- 
+
 	pass_quota=$checkQuota
 	#Tạo file backup và rsyns đến VPS mới
 	function createBackup() {
@@ -142,14 +142,14 @@ function backupUser() {
 				sleep 1
 				c=0
 				while [ $c -lt 3 ]; do
-					
+
 					if [ ! -e '/usr/bin/sshpass' ]; then
 						echo -e "Installing packages..."
 						echo -e "Please wait..."
-						yum -y install sshpass >/dev/null 2>&1 
-		
+						yum -y install sshpass >/dev/null 2>&1
+
 					fi
-					
+
 					timeout 20s sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'echo "Login Success"' >/tmp/sshpasslog.txt 2>&1
 
 					if [ "$(grep -w "Login Success" /tmp/sshpasslog.txt)" == "Login Success" ]; then
@@ -169,8 +169,8 @@ function backupUser() {
 						read -p "=> Please enter Password: " password
 					fi
 
-				done				
- 
+				done
+
 				sleep 5
 
 				if [[ $pass_quota == "true" ]]; then
@@ -185,17 +185,16 @@ function backupUser() {
 						while [ $c -lt 3 ]; do
 
 							file_bakup=$(find /home/admin/admin_backups/ -cmin -30 -type f | awk -F"/" '{print $(NF) }' | awk '/$x/ {print}')
-							
+
 							if [ ! -e '/usr/bin/rsync' ]; then
 								echo -e "Installing packages..."
 								echo -e "Please wait..."
-								yum -y install rsync >/dev/null 2>&1 
+								yum -y install rsync >/dev/null 2>&1
 							fi
-							
+
 							ionice -c 2 -n 5 rsync -pqav --progress --remove-source-files --rsh="/usr/bin/sshpass -p "$password" ssh -o StrictHostKeyChecking=no -l root" /home/admin/admin_backups/$file_bakup $username@$ip:/home/admin/admin_backups/ >/tmp/rsynlog.txt 2>&1
 
-							
-							if [  -s /tmp/rsynlog.txt ] && [ "$(grep -wi "failed - POSSIBLE BREAK-IN ATTEMPT" /tmp/rsynlog.txt | awk -F"-" '{print $2}')" == " POSSIBLE BREAK" ]; then
+							if [ -s /tmp/rsynlog.txt ] && [ "$(grep -wi "failed - POSSIBLE BREAK-IN ATTEMPT" /tmp/rsynlog.txt | awk -F"-" '{print $2}')" == " POSSIBLE BREAK" ]; then
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
@@ -207,7 +206,7 @@ function backupUser() {
 								tmp=$(cat /tmp/rsynlog.txt)
 								echo $tmp
 								c=$(expr $c + 1)
-							else 
+							else
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
@@ -450,6 +449,87 @@ function system_info() {
 	info
 }
 
+function createSwap() {
+
+	if [ ! -e '/usr/sbin/dmidecode' ]; then
+		echo -e "Installing packages..."
+		echo -e "Please wait..."
+		yum -y install bc >/dev/null 2>&1
+	fi
+
+	ram_physical=$(dmidecode -t 17 | awk -F":" '/Size/ {print $2}' | sed 's/^[ \t]*//' | awk '{print $1}')
+
+	list_swapon=($(swapon -s | awk '{print $(NR=1)}' | grep -v "Filename" | awk 'BEGIN{ORS=" "}1'))
+	echo -e "Show Ram Infomation...\n"
+	sleep 2
+	free -h
+	echo ""
+	sleep 2
+
+	while true; do
+		echo -e "1024=1GB; 2048=2GB; 3072=3GB; 4096=4GB\n"
+		read -p "How much Swaps do you need to create? : " select
+		echo ""
+		case $select in
+		1024)
+			echo "Creating Swap 1GB"
+			create_swap
+			break
+			;;
+
+		2048)
+			echo -e "Creating Swap 2GB"
+			create_swap
+			break
+			;;
+		3072)
+			echo -e "Creating Swap 3GB"
+			create_swap
+			break
+			;;
+		4096)
+			echo -e "Creating Swap 4GB"
+			create_swap
+			break
+			;;
+		0)
+			echo -e "Exit"
+			return
+			;;
+		*) echo -e "\e[0;31mIncorrect value\e[0m, Enter again! \n" ;;
+		esac
+	done
+
+	function create_swap() {
+
+		#Xoa swap neu da ton tai
+		if [ ! ${#list_swapon[@]} -eq 0 ]; then
+			echo -e "Removing installed Swap "
+			for ((i = 0; i < ${#list_swapon[@]}; i++)); do
+
+				swapoff -v ${list_swapon[i]}
+				sed -i '/swap/d' /etc/fstab
+				rm -rf ${list_swapon[i]}
+			done
+		fi
+		dd if=/dev/zero of=/swapfile bs=1024 count=$(expr $select \* 1024)
+		chown root:root /swapfile
+		chmod 600 /swapfile
+		mkswap /swapfile
+		swapon /swapfile
+		echo "/swapfile   none    swap    sw    0   0" | sudo tee -a /etc/fstab
+		sed -i '/vm.swappiness/d' /etc/sysctl.conf
+		sysctl vm.swappiness=10
+		echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf
+		sed 's/vm.swappiness =.*/vm.swappiness = 10/g' /usr/lib/tuned/virtual-guest/tuned.conf
+		echo -e "Show Ram Infomation...\n"
+		sleep 2
+		free -h
+		echo ""
+
+	}
+
+}
 
 function speed_test() {
 	local speedtest=$(wget -4O /dev/null -T300 $1 2>&1 | awk '/\/dev\/null/ {speed=$3 $4} END {gsub(/\(|\)/,"",speed); print speed}')
@@ -597,7 +677,7 @@ main() {
 			free_up_disk_space
 			;;
 		5)
-			"swap"
+			createSwap
 			;;
 		6)
 			again="y"
