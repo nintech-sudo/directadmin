@@ -457,7 +457,7 @@ function createSwap() {
 		yum -y install bc >/dev/null 2>&1
 	fi
 
-	ram_physical=$(dmidecode -t 17 | awk -F":" '/Size/ {print $2}' | sed 's/^[ \t]*//' | awk '{print $1}')
+	#ram_physical=$(dmidecode -t 17 | awk -F":" '/Size/ {print $2}' | sed 's/^[ \t]*//' | awk '{print $1}')
 
 	list_swapon=($(swapon -s | awk '{print $(NR=1)}' | grep -v "Filename" | awk 'BEGIN{ORS=" "}1'))
 	echo -e "Show Ram Infomation...\n"
