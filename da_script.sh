@@ -451,12 +451,6 @@ function system_info() {
 
 function createSwap() {
 
-	if [ ! -e '/usr/sbin/dmidecode' ]; then
-		echo -e "Installing packages..."
-		echo -e "Please wait..."
-		yum -y install bc >/dev/null 2>&1
-	fi
-
 	#ram_physical=$(dmidecode -t 17 | awk -F":" '/Size/ {print $2}' | sed 's/^[ \t]*//' | awk '{print $1}')
 
 	list_swapon=($(swapon -s | awk '{print $(NR=1)}' | grep -v "Filename" | awk 'BEGIN{ORS=" "}1'))
@@ -488,7 +482,7 @@ function createSwap() {
 			dd if=/dev/zero of=/swapfile bs=1024 count=$(expr $select \* 1024)
 			chown root:root /swapfile
 			chmod 600 /swapfile
-			mkswap /swapfile
+			mkswap -f /swapfile 
 			swapon /swapfile 
 			echo "/swapfile   none    swap    sw    0   0" | sudo tee -a /etc/fstab >/dev/null
 			sed -i '/vm.swappiness/d' /etc/sysctl.conf >/dev/null
