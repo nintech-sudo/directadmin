@@ -4,7 +4,7 @@
 #
 # Created by: ninhpq@vinahost.vn
 ############################################
-echo -e "Make sure the backup file is in the format: type.owner.user.tar.gz and is located in /home/admin/admin_backups/file_backup\n"
+echo -e "Make sure the backup file is in the format: \e[0;31mtype.owner.user.tar.gz\e[0m and is located in \e[0;31m/home/admin/admin_backups/file_backup\e[0m\n"
 sleep 5
 list_file_backup=$(find /home/admin/admin_backups/file_backup -type f -name "*.tar.gz" | awk -F"/" '{print $6}')
 array_list_file_backup_tar_gz=($list_file_backup)
