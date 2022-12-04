@@ -473,23 +473,23 @@ function createSwap() {
 		case $select in
 		1024)
 			echo "Creating Swap 1GB"
-			create_swap;
+			swap
 			break
 			;;
 
 		2048)
 			echo -e "Creating Swap 2GB"
-			create_swap;
+			swap
 			break
 			;;
 		3072)
 			echo -e "Creating Swap 3GB"
-			create_swap;
+			swap
 			break
 			;;
 		4096)
 			echo -e "Creating Swap 4GB"
-			create_swap;
+			swap
 			break
 			;;
 		0)
@@ -500,7 +500,7 @@ function createSwap() {
 		esac
 	done
 
-	function create_swap() {
+	function swap() {
 
 		#Xoa swap neu da ton tai
 		if [ ! ${#list_swapon[@]} -eq 0 ]; then
