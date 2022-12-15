@@ -584,6 +584,7 @@ print_menu() {
 	printf '%-80s %-5s \n' "4) Clean up Disk space" "#"
 	printf '%-80s %-5s \n' "5) Create Swap" "#"
 	printf '%-80s %-5s \n' "6) Network speed test" "#"
+	printf '%-80s %-5s \n' "7) Setup Wordpress in Directadmin" "#"
 	echo -e "0) Exit \t\t\t\t\t\t\t    \e[34;5;1mCode by Nin\e[0m  #"
 	next
 }
@@ -639,8 +640,8 @@ main() {
 			backupUser
 			;;
 		3)
-			wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"
-			. /home/admin/admin_backups/restore.sh
+			curl -s https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh | bash
+
 			;;
 		4)
 			free_up_disk_space
@@ -678,6 +679,9 @@ main() {
 				fi
 			done
 			opt=69
+			;;
+		7)      
+			curl -s https://raw.githubusercontent.com/nintech-sudo/directadmin/main/setup_wp.sh | bash
 			;;
 
 		0)
