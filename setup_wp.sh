@@ -52,6 +52,11 @@ if [ ! -e '/usr/local/bin/wp' ]; then
     wp --info
 fi
 
+if [ ! -e '/usr/bin/curl' ]; then
+    echo -e "Installing packages..."
+    yum -y install curl
+
+fi
 next() {
     printf "%-82s\n" "#" | sed 's/\s/#/g'
 }
