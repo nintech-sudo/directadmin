@@ -135,7 +135,7 @@ function backupUser() {
 			case $select in
 			1)
 				read -p "=> Please enter IP of server: " ip
-				read -p "=> Please enter Username: " username
+				read -p "=> Please enter Username(root): " username
 				read -p "=> Please enter Password: " password
 
 				echo -e "Checking login...\n"
@@ -165,7 +165,7 @@ function backupUser() {
 						fi
 						echo -e "\e[0;31mAgain!\e[0m"
 						read -p "=> Please enter IP of server: " ip
-						read -p "=> Please enter Username: " username
+						read -p "=> Please enter Username(root): " username
 						read -p "=> Please enter Password: " password
 					fi
 
