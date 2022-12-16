@@ -77,7 +77,7 @@ function checkLogin() {
                 break
             fi
 
-            if [[! -s /tmp/loginda.log ]] || [[ ! -s /tmp/loginda2.log ]]; then
+            if [[ ! -s /tmp/loginda.log ]] || [[ ! -s /tmp/loginda2.log ]]; then
                 break
             fi
 
