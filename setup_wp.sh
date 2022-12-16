@@ -163,59 +163,47 @@ username=""
 password=""
 
 #Main
-    next
-    echo -e "1) Set up Wordpress\n"
-    echo -e "0) Cancel\n"
-    read -p "=> Your Options : " select
+echo ""
+echo -e "1) Set up Wordpress\n"
+echo -e "0) Cancel\n"
+read -p "=> Your Options : " select
+echo ""
 
-    case $select in
-    1)
+next
+checkLogin
+next
+#Kiem tra user
+while true; do
+    echo ""
+    read -p "Enter the $(ColorRed "User name") to Setup Wordpress: " user_wp
+    echo ""
+    i=0
+    while [ $i -lt ${#array_list_user[@]} ]; do
 
-        next
-        checkLogin
-        next
-        #Kiem tra user
-        while true; do
-            echo ""
-            read -p "Enter the $(ColorRed "User name") to Setup Wordpress: " user_wp
-            echo ""
-            i=0
-            while [ $i -lt ${#array_list_user[@]} ]; do
+        if [[ $user_wp == ${array_list_user[i]} ]]; then
 
-                if [[ $user_wp == ${array_list_user[i]} ]]; then
-
-                    echo -e "$(ColorRed "User is exist"), try username other! "
-                    break
-                fi
-                i=$(expr $i + 1)
-            done
-            if [ $i == ${#array_list_user[@]} ]; then
-                break
-            fi
-        done
-
-        read -p "Enter the $(ColorRed "Password"): " password_user_wp
-        echo ""
-        read -p "Enter the $(ColorRed "Domain"): " domain_user_wp
-        echo ""
-        next
-        setupWPNewUser
-        next
-        #Xuat thong tin
-        echo -e "$(ColorBlue "Wordpress installation information")\n"
-        echo -e "-URL: https://$domain_user_wp"
-        echo -e "User Directadmin: $user_wp - Password: $password_user_wp"
-        echo -e "User phpMyAdmin: $user_wp - Password: $password_user_wp"
-        echo -e "User Wordpress: admin - Password: $password_user_wp"
-
+            echo -e "$(ColorRed "User is exist"), try username other! "
+            break
+        fi
+        i=$(expr $i + 1)
+    done
+    if [ $i == ${#array_list_user[@]} ]; then
         break
-        ;;
+    fi
+done
 
-    0)
-        echo -e "Bye!\n"
-        return 1
-        ;;
+read -p "Enter the $(ColorRed "Password"): " password_user_wp
+echo ""
+read -p "Enter the $(ColorRed "Domain"): " domain_user_wp
+echo ""
+next
+setupWPNewUser
+next
+#Xuat thong tin
+echo -e "$(ColorBlue "Wordpress installation information")\n"
+echo -e "-URL: https://$domain_user_wp"
+echo -e "User Directadmin: $user_wp - Password: $password_user_wp"
+echo -e "User phpMyAdmin: $user_wp - Password: $password_user_wp"
+echo -e "User Wordpress: admin - Password: $password_user_wp"
 
-    *) echo -e "$(ColorRed 'Incorrect value'), Enter again! \n" ;;
-    esac
 
