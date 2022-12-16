@@ -56,50 +56,6 @@ next() {
     printf "%-82s\n" "#" | sed 's/\s/#/g'
 }
 
-function checkLogin() {
-    echo -e "$(ColorBlue "Checking Login Dirrectadmin")\n"
-    read -p "=> Please enter $(ColorRed "IP and Port") of server: " ip
-    read -p "=> Please enter $(ColorRed "Username Admin"): " username
-    read -p "=> Please enter $(ColorRed "Password"): " password
-
-    c=0
-    while [ $c -lt 3 ]; do
-
-        while true; do
-
-            curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_LOGIN" >/tmp/loginda.log
-            curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_LOGIN" 2>/tmp/loginda2.log
-
-            if [[ $(cat /tmp/loginda2.log) == "curl: (35) TCP connection reset by peer" ]]; then
-
-                curl --request "POST" --user "$username:$password" "http://$ip/CMD_LOGIN" >/tmp/loginda.log
-                curl --request "POST" --user "$username:$password" "http://$ip/CMD_LOGIN" 2>/tmp/loginda2.log
-                break
-            fi
-
-        done
-
-        if [[ $(awk -F":" '/LOST_PASSWORD/ {print $1}' /tmp/loginda.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "LOST_PASSWORD" ]] || [[ $(awk -F";" '/Failed connect/ {print $NF}' /tmp/loginda2.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "No route to host" ]] || [[ $(awk -F">" '/<title>404/ {print $2}' /tmp/loginda.log | cut -d"<" -f 1) == "404 Not Found" ]] || [[ $(awk -F"<h1>" '/Invalid login/ {print $2}' /tmp/loginda.log | cut -d"." -f 1) == "Invalid login" ]]; then
-            echo $?
-            echo "Failed Login Directadmin"
-            c=$(expr $c + 1)
-            if [ $c -eq 3 ]; then
-                exit 1
-            fi
-            echo -e "\e[0;31mAgain!\e[0m"
-            read -p "=> Please enter $(ColorRed "IP and Port") of server: " ip
-            read -p "=> Please enter $(ColorRed "Username Admin"): " username
-            read -p "=> Please enter $(ColorRed "Password"): " password
-        else
-            echo ""
-            echo -e "Login Success\n"
-            sleep 3
-            break
-        fi
-
-    done
-    return
-}
 
 function setupWPNewUser() {
 
@@ -216,3 +172,48 @@ while true; do
     *) echo -e "$(ColorRed 'Incorrect value'), Enter again! \n" ;;
     esac
 done
+
+function checkLogin() {
+    echo -e "$(ColorBlue "Checking Login Dirrectadmin")\n"
+    read -p "=> Please enter $(ColorRed "IP and Port") of server: " ip
+    read -p "=> Please enter $(ColorRed "Username Admin"): " username
+    read -p "=> Please enter $(ColorRed "Password"): " password
+
+    c=0
+    while [ $c -lt 3 ]; do
+
+        while true; do
+
+            curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_LOGIN" >/tmp/loginda.log
+            curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_LOGIN" 2>/tmp/loginda2.log
+
+            if [[ $(cat /tmp/loginda2.log) == "curl: (35) TCP connection reset by peer" ]]; then
+
+                curl --request "POST" --user "$username:$password" "http://$ip/CMD_LOGIN" >/tmp/loginda.log
+                curl --request "POST" --user "$username:$password" "http://$ip/CMD_LOGIN" 2>/tmp/loginda2.log
+                break
+            fi
+
+        done
+
+        if [[ $(awk -F":" '/LOST_PASSWORD/ {print $1}' /tmp/loginda.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "LOST_PASSWORD" ]] || [[ $(awk -F";" '/Failed connect/ {print $NF}' /tmp/loginda2.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "No route to host" ]] || [[ $(awk -F">" '/<title>404/ {print $2}' /tmp/loginda.log | cut -d"<" -f 1) == "404 Not Found" ]] || [[ $(awk -F"<h1>" '/Invalid login/ {print $2}' /tmp/loginda.log | cut -d"." -f 1) == "Invalid login" ]]; then
+            echo $?
+            echo "Failed Login Directadmin"
+            c=$(expr $c + 1)
+            if [ $c -eq 3 ]; then
+                exit 1
+            fi
+            echo -e "\e[0;31mAgain!\e[0m"
+            read -p "=> Please enter $(ColorRed "IP and Port") of server: " ip
+            read -p "=> Please enter $(ColorRed "Username Admin"): " username
+            read -p "=> Please enter $(ColorRed "Password"): " password
+        else
+            echo ""
+            echo -e "Login Success\n"
+            sleep 3
+            break
+        fi
+
+    done
+    return
+}
