@@ -639,9 +639,10 @@ main() {
 		2)
 			backupUser
 			;;
-		3)
-			curl -s https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh | bash
-
+		3)	
+			wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"
+			. /home/admin/admin_backups/restore.sh	
+			rm -rf /home/admin/admin_backups/restore.sh
 			;;
 		4)
 			free_up_disk_space
@@ -681,7 +682,9 @@ main() {
 			opt=69
 			;;
 		7)      
-			curl -s https://raw.githubusercontent.com/nintech-sudo/directadmin/main/setup_wp.sh | bash
+			wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/setup_wp.sh"
+			. /home/admin/admin_backups/setup_wp.sh
+			rm -rf /home/admin/admin_backups/setup_wp.sh
 			;;
 
 		0)
