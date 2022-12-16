@@ -145,7 +145,7 @@ function setupWPNewUser() {
     echo -e "Installing SSL for $domain_user_wp\n"
 
     cd /usr/local/directadmin/scripts
-    ./letsencrypt.sh request $(hostname),www.$domain_user_wp,$domain_user_wp 2048
+    ./letsencrypt.sh request $domain_user_wp,www.$domain_user_wp 2048
     cd /home/$user_wp
 }
 
