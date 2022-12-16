@@ -77,6 +77,7 @@ function checkLogin() {
                 curl --request "POST" --user "$username:$password" "http://$ip/CMD_LOGIN" 2>/tmp/loginda2.log
                 break
             fi
+            break
 
         done
 
