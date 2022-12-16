@@ -56,7 +56,6 @@ next() {
     printf "%-82s\n" "#" | sed 's/\s/#/g'
 }
 
-
 function checkLogin() {
     echo -e "$(ColorBlue "Checking Login Dirrectadmin")\n"
     read -p "=> Please enter $(ColorRed "IP and Port") of server: " ip
@@ -77,7 +76,10 @@ function checkLogin() {
                 curl --request "POST" --user "$username:$password" "http://$ip/CMD_LOGIN" 2>/tmp/loginda2.log
                 break
             fi
-            break
+
+            if [[! -s /tmp/loginda.log ]] || [[ ! -s /tmp/loginda2.log ]]; then
+                break
+            fi
 
         done
 
@@ -125,7 +127,18 @@ function setupWPNewUser() {
         fi
         break
     done
-  
+ 
+    if [[ -s /home/$user_wp/public_html ]]; then
+
+        installWordPress
+        break
+
+    fi
+
+}
+
+function installWordPress() {
+
     #install wordpress
     cd /home/$user_wp/public_html/
     rm -rf /home/$user_wp/public_html/*
@@ -146,8 +159,9 @@ function setupWPNewUser() {
     echo -e "Installing SSL for $domain_user_wp\n"
 
     cd /usr/local/directadmin/scripts
-    ./letsencrypt.sh request $domain_user_wp,www.$domain_user_wp 2048
+    ./letsencrypt.sh request $(hostname),www.$domain_user_wp,$domain_user_wp 2048
     cd /home/$user_wp
+
 }
 
 #Lay danh sach user hien co
@@ -161,7 +175,7 @@ password=""
 
 #Main
 while true; do
-    next
+    echo ""
     echo -e "1) Set up Wordpress\n"
     echo -e "0) Cancel\n"
     read -p "=> Your Options : " select
