@@ -57,53 +57,6 @@ next() {
 }
 
 
-function setupWPNewUser() {
-
-    while true; do
-
-        #Create New User in Directadmin
-
-        curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create" 2>/tmp/loginda2.log
-        echo ""
-        #Create Database for new user in Directadmin
-        curl --insecure --request "POST" --user "$user_wp:$password_user_wp" "https://$ip/CMD_API_DATABASES?name="$user_wp"db&user=$user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&action=create" 2>/tmp/loginda2.log
-
-        if [[ $(cat /tmp/loginda2.log) == "curl: (35) TCP connection reset by peer" ]]; then
-
-            #Create New User in Directadmin
-            curl --request "POST" --user "$username:$password" "http://$ip/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create"
-            echo ""
-            #Create Database for new user in Directadmin
-            curl --request "POST" --user "$user_wp:$password_user_wp" "http://$ip/CMD_API_DATABASES?name="$user_wp"db&user=$user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&action=create"
-            break
-        fi
-        break
-    done
-  
-    #install wordpress
-    cd /home/$user_wp/public_html/
-    rm -rf /home/$user_wp/public_html/*
-    wp core download --allow-root
-    chown -R $user_wp:$user_wp /home/$user_wp/public_html/
-    wp core config --dbhost=localhost --dbname=$user_wp"_""$user_wp"db --dbuser=$user_wp --dbpass=$password_user_wp --allow-root
-    chmod 600 wp-config.php
-    chown -R $user_wp:$user_wp /home/$user_wp/public_html/wp-config.php
-    wp core install --url=$domain_user_wp --title="Welcome to $domain_user_wp" --admin_name=admin --admin_password=$password_user_wp --admin_email=admin@$domain_user_wp --allow-root
-
-    wp theme install photobrust --allow-root
-    wp theme activate photobrust --allow-root
-    chown -R $user_wp:$user_wp /home/$user_wp/public_html/
-    sed -i "s/Weaving Feathers/VINAHOST/g" /home/$user_wp/public_html/wp-content/themes/photobrust/inc/patterns/header-media.php
-    sed -i "s/Make your photos look brilliant/Created by NinTech/g" /home/$user_wp/public_html/wp-content/themes/photobrust/inc/patterns/header-media.php
-
-    #install ssl
-    echo -e "Installing SSL for $domain_user_wp\n"
-
-    cd /usr/local/directadmin/scripts
-    ./letsencrypt.sh request $(hostname),www.$domain_user_wp,$domain_user_wp 2048
-    cd /home/$user_wp
-}
-
 #Lay danh sach user hien co
 array_list_user=($(ls -d /usr/local/directadmin/data/users/*/ | awk -F"/" '{print $(NF-1)}' | awk 'BEGIN{ORS=" "}1'))
 user_wp=""
@@ -216,4 +169,51 @@ function checkLogin() {
 
     done
     return
+}
+
+function setupWPNewUser() {
+
+    while true; do
+
+        #Create New User in Directadmin
+
+        curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create" 2>/tmp/loginda2.log
+        echo ""
+        #Create Database for new user in Directadmin
+        curl --insecure --request "POST" --user "$user_wp:$password_user_wp" "https://$ip/CMD_API_DATABASES?name="$user_wp"db&user=$user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&action=create" 2>/tmp/loginda2.log
+
+        if [[ $(cat /tmp/loginda2.log) == "curl: (35) TCP connection reset by peer" ]]; then
+
+            #Create New User in Directadmin
+            curl --request "POST" --user "$username:$password" "http://$ip/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create"
+            echo ""
+            #Create Database for new user in Directadmin
+            curl --request "POST" --user "$user_wp:$password_user_wp" "http://$ip/CMD_API_DATABASES?name="$user_wp"db&user=$user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&action=create"
+            break
+        fi
+        break
+    done
+  
+    #install wordpress
+    cd /home/$user_wp/public_html/
+    rm -rf /home/$user_wp/public_html/*
+    wp core download --allow-root
+    chown -R $user_wp:$user_wp /home/$user_wp/public_html/
+    wp core config --dbhost=localhost --dbname=$user_wp"_""$user_wp"db --dbuser=$user_wp --dbpass=$password_user_wp --allow-root
+    chmod 600 wp-config.php
+    chown -R $user_wp:$user_wp /home/$user_wp/public_html/wp-config.php
+    wp core install --url=$domain_user_wp --title="Welcome to $domain_user_wp" --admin_name=admin --admin_password=$password_user_wp --admin_email=admin@$domain_user_wp --allow-root
+
+    wp theme install photobrust --allow-root
+    wp theme activate photobrust --allow-root
+    chown -R $user_wp:$user_wp /home/$user_wp/public_html/
+    sed -i "s/Weaving Feathers/VINAHOST/g" /home/$user_wp/public_html/wp-content/themes/photobrust/inc/patterns/header-media.php
+    sed -i "s/Make your photos look brilliant/Created by NinTech/g" /home/$user_wp/public_html/wp-content/themes/photobrust/inc/patterns/header-media.php
+
+    #install ssl
+    echo -e "Installing SSL for $domain_user_wp\n"
+
+    cd /usr/local/directadmin/scripts
+    ./letsencrypt.sh request $(hostname),www.$domain_user_wp,$domain_user_wp 2048
+    cd /home/$user_wp
 }
