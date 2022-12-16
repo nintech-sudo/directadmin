@@ -166,8 +166,11 @@ function installWordPress() {
         break
     fi
     sed -i 's/dns_ttl=.*/dns_ttl=1/g' /usr/local/directadmin/conf/directadmin.conf
+    sed -i 's/letsencrypt=.*/letsencrypt=1/g' /usr/local/directadmin/conf/directadmin.conf
     cd /usr/local/directadmin/scripts
-    ./letsencrypt.sh request $(hostname),www.$domain_user_wp,$domain_user_wp 2048
+    ./letsencrypt.sh request_single $domain_user_wp 4096
+    ./letsencrypt.sh request_single www.$domain_user_wp 4096
+    
     cd /home/$user_wp
     next
     #Xuat thong tin
