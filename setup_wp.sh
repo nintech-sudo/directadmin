@@ -157,7 +157,15 @@ function installWordPress() {
 
     #install ssl
     echo -e "Installing SSL for $domain_user_wp\n"
-
+    if [[! -s /usr/local/directadmin/scripts/letsencrypt.sh ]] ; then
+        
+        cd /usr/local/directadmin/custombuild
+        ./build update
+        sed -i 's/doDAVersionCheck$/doDAVersionCheck:/' build
+        ./build letsencrypt
+        break
+    fi
+    sed -i 's/dns_ttl=.*/dns_ttl=1/g' /usr/local/directadmin/conf/directadmin.conf
     cd /usr/local/directadmin/scripts
     ./letsencrypt.sh request $(hostname),www.$domain_user_wp,$domain_user_wp 2048
     cd /home/$user_wp
