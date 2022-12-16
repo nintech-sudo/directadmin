@@ -630,7 +630,7 @@ main() {
 	while [ ! $opt -eq 0 ]; do
 		clear
 		print_menu
-		get_option 6
+		get_option 10
 		opt=$?
 		case $opt in
 		1)
