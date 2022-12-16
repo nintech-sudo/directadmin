@@ -107,6 +107,9 @@ function checkLogin() {
 
 function setupWPNewUser() {
 
+    sed -i 's/max_username_length=.*/max_username_length=30/g' /usr/local/directadmin/conf/directadmin.conf
+    service directadmin restart
+
     while true; do
 
         #Create New User in Directadmin
@@ -167,6 +170,7 @@ function installWordPress() {
     fi
     sed -i 's/dns_ttl=.*/dns_ttl=1/g' /usr/local/directadmin/conf/directadmin.conf
     sed -i 's/letsencrypt=.*/letsencrypt=1/g' /usr/local/directadmin/conf/directadmin.conf
+
     
     cd /usr/local/directadmin/scripts
     ./letsencrypt.sh request $(cat /usr/local/directadmin/conf/directadmin.conf | awk -F"=" '/servername/ {print $2}'),$domain_user_wp,www.$domain_user_wp 4096
