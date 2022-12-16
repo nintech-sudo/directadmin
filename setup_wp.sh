@@ -161,6 +161,14 @@ function installWordPress() {
     cd /usr/local/directadmin/scripts
     ./letsencrypt.sh request $(hostname),www.$domain_user_wp,$domain_user_wp 2048
     cd /home/$user_wp
+    next
+    #Xuat thong tin
+    echo -e "$(ColorBlue "Wordpress installation information")\n"
+    echo -e "-URL: https://$domain_user_wp"
+    echo -e "User Directadmin: $user_wp - Password: $password_user_wp"
+    echo -e "User phpMyAdmin: $user_wp - Password: $password_user_wp"
+    echo -e "User Wordpress: admin - Password: $password_user_wp"
+
 
 }
 
@@ -213,14 +221,6 @@ while true; do
         echo ""
         next
         setupWPNewUser
-        next
-        #Xuat thong tin
-        echo -e "$(ColorBlue "Wordpress installation information")\n"
-        echo -e "-URL: https://$domain_user_wp"
-        echo -e "User Directadmin: $user_wp - Password: $password_user_wp"
-        echo -e "User phpMyAdmin: $user_wp - Password: $password_user_wp"
-        echo -e "User Wordpress: admin - Password: $password_user_wp"
-
         break
         ;;
 
