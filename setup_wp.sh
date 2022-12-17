@@ -198,7 +198,7 @@ password=""
 
 #Main
 while true; do
-    echo ""
+    next
     echo -e "1) Set up Wordpress\n"
     echo -e "0) Cancel\n"
     read -p "=> Your Options : " select
