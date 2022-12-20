@@ -192,7 +192,7 @@ function backupUser() {
 								yum -y install rsync >/dev/null 2>&1
 							fi
 
-							ionice -c 2 -n 5 rsync -pqav --progress --remove-source-files --rsh="/usr/bin/sshpass -p "$password" ssh -o StrictHostKeyChecking=no -l root" /home/admin/admin_backups/file_backup/$filebackup $username@$ip:/home/admin/admin_backups/ >/tmp/rsynlog.txt 2>&1
+							ionice -c 2 -n 5 rsync -pqav --progress --remove-source-files --rsh="/usr/bin/sshpass -p "$password" ssh -o StrictHostKeyChecking=no -l root" /home/admin/admin_backups/file_backup/$filebackup $username@$ip:/home/admin/admin_backups/file_backup >/tmp/rsynlog.txt 2>&1
 
 							if [ -s /tmp/rsynlog.txt ] && [ "$(grep -wi "failed - POSSIBLE BREAK-IN ATTEMPT" /tmp/rsynlog.txt | awk -F"-" '{print $2}')" == " POSSIBLE BREAK" ]; then
 								echo -e "Success Rsync for user $x\n"
