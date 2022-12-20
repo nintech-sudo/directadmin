@@ -531,7 +531,7 @@ $domain.     14400   IN      MX      0 $domain.
 			}
 
 			if (! grep /^$user$/, @users ) {
-				$out .= "$user=alter_priv=Y&create_priv=Y&create_tmp_table_priv=Y&delete_priv=Y&drop_priv=Y&grant_priv=N&index_priv=Y&insert_priv=Y&lock_tables_priv=Y&passwd=".$users{"$user\@$host"}."&references_priv=Y&select_priv=Y&update_priv=Y\n";
+				$out .= "$user=alter_priv=Y&alter_routine_priv=Y&create_priv=Y&create_routine_priv=Y&create_tmp_table_priv=Y&create_view_priv=Y&delete_priv=Y&drop_priv=Y&event_priv=Y&execute_priv=Y&grant_priv=N&index_priv=Y&insert_priv=Y&lock_tables_priv=Y&passwd=".$users{"$user\@$host"}."&references_priv=Y&select_priv=Y&show_view_priv=Y&trigger_priv=Y&update_priv=Y\n";
 				push @users, $user;
 
 				$db_list .= "\n\t\t\t+ user $user";
@@ -539,9 +539,8 @@ $domain.     14400   IN      MX      0 $domain.
 		}
 
 		open FH, ">${ROOT_PATH}export/$incoming_user/backup/$db.conf";
-		for ( my $i = 0; $i < @hosts; $i++) {
-			print FH "accesshosts=$i=$hosts[$i]\n";
-		}
+		print FH "db_collation=CATALOG_NAME=def&DEFAULT_CHARACTER_SET_NAME=latin1&DEFAULT_COLLATION_NAME=latin1_swedish_ci&SCHEMA_COMMENT=&SCHEMA_NAME=$db&SQL_PATH=\n";
+		print FH "accesshosts=0=localhost\n";	
 		print FH $out;
 		close FH;
 
