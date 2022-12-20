@@ -454,7 +454,7 @@ function system_info() {
 function createSwap() {
 
 	list_swapon=($(swapon -s | awk '{print $(NR=1)}' | grep -v "Filename" | awk 'BEGIN{ORS=" "}1'))
-	
+
 	echo -e "Show Ram Infomation...\n"
 	sleep 2
 	free -h
@@ -468,23 +468,23 @@ function createSwap() {
 		case $select in
 		1024)
 			echo "Creating Swap 1GB"
-			_create_swap
+			setSwap
 			break
 			;;
 
 		2048)
 			echo -e "Creating Swap 2GB"
-			_create_swap
+			setSwap
 			break
 			;;
 		3072)
 			echo -e "Creating Swap 3GB"
-			_create_swap
+			setSwap
 			break
 			;;
 		4096)
 			echo -e "Creating Swap 4GB"
-			_create_swap
+			setSwap
 			break
 			;;
 		0)
@@ -495,7 +495,7 @@ function createSwap() {
 		esac
 	done
 
-	function _create_swap() {
+	function setSwap() {
 
 		#Xoa swap neu da ton tai
 		if [ ! ${#list_swapon[@]} -eq 0 ]; then
