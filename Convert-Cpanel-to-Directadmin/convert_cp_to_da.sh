@@ -75,7 +75,7 @@ perl da.cpanel.import.pl
 if [ -e $Dir_Path'export/*' ]; then 
     mv $Dir_Path'export/*' $Dir_Path'file_backup/'
 fi
-rm -rf $Dir_Path'export/'
+#rm -rf $Dir_Path'export/'
 rm -rf $Dir_Path'da.cpanel.import.pl'
 rm -rf $Dir_Path'defaults.conf'
 
