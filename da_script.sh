@@ -42,7 +42,7 @@ function backupUser() {
 		while true; do
 			echo -e "Enter the User name to create backup (Max 5 user)\nExample: user1 user2 user3\n"
 			read -p "Your choices: " choose1 choose2 choose3 choose4 choose5
-			if [ $choose1 == "c" ]; then
+			if [ $choose1 == "c" ] || [ $choose1 == "" ] ; then
 				return
 			fi
 
