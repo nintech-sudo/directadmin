@@ -199,7 +199,7 @@ function backupUser() {
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
-								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip '. /home/admin/admin_backups/restore.sh'
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
 								break
 							elif [ -s /tmp/rsynlog.txt ]; then
 								echo "Failed"
@@ -211,7 +211,7 @@ function backupUser() {
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
-								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip '. /home/admin/admin_backups/restore.sh'
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
 								break
 							fi
 							read -p "=> Please enter IP of server: " ip
@@ -585,6 +585,7 @@ print_menu() {
 	printf '%-80s %-5s \n' "5) Create Swap" "#"
 	printf '%-80s %-5s \n' "6) Network speed test" "#"
 	printf '%-80s %-5s \n' "7) Setup Wordpress in Directadmin" "#"
+	printf '%-80s %-5s \n' "8) Convert cPanel to Directadmin" "#"
 	echo -e "0) Exit \t\t\t\t\t\t\t    \e[34;5;1mCode by Nin\e[0m  #"
 	next
 }
@@ -641,7 +642,7 @@ main() {
 			;;
 		3)	
 			wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"
-			. /home/admin/admin_backups/restore.sh	
+			bash /home/admin/admin_backups/restore.sh	
 			rm -rf /home/admin/admin_backups/restore.sh
 			;;
 		4)
@@ -683,8 +684,13 @@ main() {
 			;;
 		7)      
 			wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/setup_wp.sh"
-			. /home/admin/admin_backups/setup_wp.sh
+			bash /home/admin/admin_backups/setup_wp.sh
 			rm -rf /home/admin/admin_backups/setup_wp.sh
+			;;
+		8) 
+			wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/Convert-Cpanel-to-Directadmin/convert_cp_to_da.sh"
+			bash /home/admin/admin_backups/convert_cp_to_da.sh
+			rm -rf /home/admin/admin_backups/convert_cp_to_da.sh
 			;;
 
 		0)
