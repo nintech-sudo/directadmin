@@ -22,9 +22,10 @@ $ROOT_PATH = '/home/admin/admin_backups/';
 
 
 sub main {
-
+	print `clear`;
 	print "\n";
 	print "\033[34mWelcome to the cPanel-to-DirectAdmin conversion tool!\033[0m\n";
+	print "\n";
 	print "This tool exclusively uses the cPanel backup file to do the conversion\n";
 	print "So this tool can be executed on DirectAdmin server:\n";
     print "Before starting, copy your cPanel file backups into the \033[31m${ROOT_PATH}import/\033[0m directory\n";
