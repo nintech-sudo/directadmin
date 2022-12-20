@@ -36,7 +36,7 @@ function backupUser() {
 		done
 	}
 
-	#Kiểm tra user
+	#Kiểm tra user 
 	function checkUsers() {
 
 		while true; do
