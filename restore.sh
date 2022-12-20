@@ -18,7 +18,7 @@ fi
 
 if [ ${#array_list_file_backup_tar_gz[@]} -eq 0 ]; then
     echo -e "\e[0;31mNo such file backup!\e[0m\n"
-    return 
+    break 
 else
     for ((i = 0; i < ${#array_list_file_backup_tar_gz[@]}; i++)); do
 
@@ -37,4 +37,3 @@ else
     done
 fi
 
-return
