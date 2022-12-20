@@ -80,5 +80,5 @@ function _create_swap() {
     sleep 2
     free -h
     echo ""
-
+ 
 }
