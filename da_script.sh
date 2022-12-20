@@ -200,6 +200,7 @@ function backupUser() {
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'rm -rf /home/admin/admin_backups/restore.sh'
 								break
 							elif [ -s /tmp/rsynlog.txt ]; then
 								echo "Failed"
@@ -212,6 +213,7 @@ function backupUser() {
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'rm -rf /home/admin/admin_backups/restore.sh'
 								break
 							fi
 							read -p "=> Please enter IP of server: " ip
