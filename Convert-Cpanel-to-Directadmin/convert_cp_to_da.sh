@@ -62,12 +62,12 @@ fi
 curl -O https://raw.githubusercontent.com/nintech-sudo/directadmin/main/Convert-Cpanel-to-Directadmin/da.cpanel.import.pl 
 curl -O https://raw.githubusercontent.com/nintech-sudo/directadmin/main/Convert-Cpanel-to-Directadmin/defaults.conf
 chmod +x da.cpanel.import.pl
-sed -i 's/ip=.*/ip=$(curl http://ip.vinahost.vn)/g' $Dir_Path'defaults.conf'
+sed -i 's/ip=.*/ip=$(curl -s http://ip.vinahost.vn)/g' $Dir_Path'defaults.conf'
 
-/usr/local/directadmin/directadmin set max_username_length 30 restart
-/usr/local/directadmin/directadmin set mysql_use_new_user_methods 1 restart
-/usr/local/directadmin/directadmin set allow_db_underscore 1 restart
-/usr/local/directadmin/directadmin set track_task_queue_processes 1 restart
+/usr/local/directadmin/directadmin set max_username_length 30 restart >/dev/null
+/usr/local/directadmin/directadmin set mysql_use_new_user_methods 1 restart >/dev/null
+/usr/local/directadmin/directadmin set allow_db_underscore 1 restart >/dev/null
+/usr/local/directadmin/directadmin set track_task_queue_processes 1 restart >/dev/null
 
 perl da.cpanel.import.pl
 
