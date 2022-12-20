@@ -70,7 +70,7 @@ sed -i 's/ip=.*/ip=$ip_vps/g' $Dir_Path'defaults.conf'
 /usr/local/directadmin/directadmin set allow_db_underscore 1 restart >/dev/null
 /usr/local/directadmin/directadmin set track_task_queue_processes 1 restart >/dev/null
 
-#perl da.cpanel.import.pl
+perl da.cpanel.import.pl
 
 if [ -e $Dir_Path'export'/* ]; then 
     mv $Dir_Path'export'/* $Dir_Path'file_backup/'
