@@ -15,7 +15,7 @@ magenta=$(printf '\e[35m')
 ##
 # Color Functions
 ##
-
+ 
 colorGreen() {
     echo -ne $green$1$clear
 }
