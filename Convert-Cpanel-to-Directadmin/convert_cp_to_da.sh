@@ -78,4 +78,3 @@ fi
 rm -rf $Dir_Path'export/'
 rm -rf $Dir_Path'da.cpanel.import.pl'
 rm -rf $Dir_Path'defaults.conf'
-
