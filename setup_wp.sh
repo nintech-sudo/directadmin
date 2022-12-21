@@ -112,12 +112,47 @@ function checkLogin() {
 
 function setupWPNewUser() {
 
-    sed -i 's/max_username_length=.*/max_username_length=30/g' /usr/local/directadmin/conf/directadmin.conf
-    service directadmin restart
+    /usr/local/directadmin/directadmin set max_username_length 30 restart >/dev/null
+    /usr/local/directadmin/directadmin set allow_db_underscore 1 restart >/dev/null
 
     while true; do
 
         #Create New User in Directadmin
+
+        curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create" 2>/tmp/loginda2.log
+        echo ""
+        #Create Database for new user in Directadmin
+        curl --insecure --request "POST" --user "$user_wp:$password_user_wp" "https://$ip/CMD_API_DATABASES?name="$user_wp"db&user=$user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&action=create" 2>/tmp/loginda2.log
+
+        if [[ $(cat /tmp/loginda2.log) == "curl: (35) TCP connection reset by peer" ]]; then
+
+            #Create New User in Directadmin
+            curl --request "POST" --user "$username:$password" "http://$ip/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create"
+            echo ""
+            #Create Database for new user in Directadmin
+            curl --request "POST" --user "$user_wp:$password_user_wp" "http://$ip/CMD_API_DATABASES?name="$user_wp"db&user=$user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&action=create"
+            break
+        fi
+        break
+    done
+
+    if [[ -s /home/$user_wp/public_html ]]; then
+
+        installWordPress
+        break
+
+    fi
+
+}
+
+function setupWPUserExists() {
+
+    /usr/local/directadmin/directadmin set max_username_length 30 restart >/dev/null
+    /usr/local/directadmin/directadmin set allow_db_underscore 1 restart >/dev/null
+
+    while true; do
+
+        #Addon domain in Directadmin
 
         curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create" 2>/tmp/loginda2.log
         echo ""
@@ -203,7 +238,7 @@ password=""
 while true; do
     echo ""
     echo -e "1) Set up Wordpress with $(ColorRed "New User")\n"
-    echo -e "2) Set up Wordpress with $(ColorRed "Exits User")\n"
+    echo -e "2) Set up Wordpress with $(ColorRed "User Exists")\n"
     echo -e "0) Cancel\n"
     read -p "=> Your Options : " select
     echo ""
@@ -272,7 +307,7 @@ while true; do
         #Kiem tra user
         while true; do
             echo ""
-            read -p "Enter the $(ColorRed "User name") to Setup Wordpress: " user_wp
+            read -p "Enter the $(ColorRed "New User name") to Setup Wordpress: " user_wp
             echo ""
             i=0
             while [ $i -lt ${#array_list_user[@]} ]; do
