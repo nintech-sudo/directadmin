@@ -83,11 +83,13 @@ function checkLogin() {
 
         done
 
-        if [[ $(awk -F":" '/LOST_PASSWORD/ {print $1}' /tmp/loginda.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "LOST_PASSWORD" ]] || \
-         [[ $(awk -F";" '/Failed connect/ {print $NF}' /tmp/loginda2.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "No route to host" ]] || \
-          [[ $(awk -F">" '/<title>404/ {print $2}' /tmp/loginda.log | cut -d"<" -f 1) == "404 Not Found" ]] || \
-           [[ $(awk -F"<h1>" '/Invalid login/ {print $2}' /tmp/loginda.log | cut -d"." -f 1) == "Invalid login" ]] || [[ -s /tmp/loginda2.log ]]; then
-            
+        if
+            [[ $(awk -F":" '/LOST_PASSWORD/ {print $1}' /tmp/loginda.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "LOST_PASSWORD" ]] || \
+            [[ $(awk -F";" '/Failed connect/ {print $NF}' /tmp/loginda2.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "No route to host" ]] || \
+            [[ $(awk -F">" '/<title>404/ {print $2}' /tmp/loginda.log | cut -d"<" -f 1) == "404 Not Found" ]] || \
+            [[ $(awk -F"<h1>" '/Invalid login/ {print $2}' /tmp/loginda.log | cut -d"." -f 1) == "Invalid login" ]] || [[ -s /tmp/loginda2.log ]]
+        then
+
             echo "Failed Login Directadmin"
             c=$(expr $c + 1)
             if [ $c -eq 3 ]; then
@@ -133,7 +135,7 @@ function setupWPNewUser() {
         fi
         break
     done
- 
+
     if [[ -s /home/$user_wp/public_html ]]; then
 
         installWordPress
@@ -163,8 +165,8 @@ function installWordPress() {
 
     #install ssl
     echo -e "Installing SSL for $domain_user_wp\n"
-    if [[ ! -s /usr/local/directadmin/scripts/letsencrypt.sh ]] ; then
-        
+    if [[ ! -s /usr/local/directadmin/scripts/letsencrypt.sh ]]; then
+
         cd /usr/local/directadmin/custombuild
         ./build update
         sed -i 's/doDAVersionCheck$/doDAVersionCheck:/' build
@@ -174,10 +176,9 @@ function installWordPress() {
     sed -i 's/dns_ttl=.*/dns_ttl=1/g' /usr/local/directadmin/conf/directadmin.conf
     sed -i 's/letsencrypt=.*/letsencrypt=1/g' /usr/local/directadmin/conf/directadmin.conf
 
-    
     cd /usr/local/directadmin/scripts
     ./letsencrypt.sh request $(cat /usr/local/directadmin/conf/directadmin.conf | awk -F"=" '/servername/ {print $2}'),$domain_user_wp,www.$domain_user_wp 4096
-        
+
     cd /home/$user_wp
     next
     #Xuat thong tin
@@ -186,7 +187,6 @@ function installWordPress() {
     echo -e "User Directadmin: $user_wp - Password: $password_user_wp"
     echo -e "User phpMyAdmin: $user_wp - Password: $password_user_wp"
     echo -e "User Wordpress: admin - Password: $password_user_wp"
-
 
 }
 
@@ -201,13 +201,15 @@ password=""
 
 #Main
 while true; do
-    next
     echo ""
-    read -p "=> Do you want to Setup Wordpress (y/n) : " select
+    echo -e "1) Set up Wordpress with $(ColorRed "New User")\n"
+    echo -e "2) Set up Wordpress with $(ColorRed "Exits User")\n"
+    echo -e "0) Cancel\n"
+    read -p "=> Your Options : " select
     echo ""
 
     case $select in
-    y|yes)
+    1)
 
         next
         checkLogin
@@ -215,7 +217,7 @@ while true; do
         #Kiem tra user
         while true; do
             echo ""
-            read -p "Enter the $(ColorRed "User name") to Setup Wordpress: " user_wp
+            read -p "Enter the $(ColorRed "New User name") to Setup Wordpress: " user_wp
             echo ""
             i=0
             while [ $i -lt ${#array_list_user[@]} ]; do
@@ -240,10 +242,69 @@ while true; do
         setupWPNewUser
         break
         ;;
+    2)
 
-    n|no)
+        next
+        checkLogin
+
+        list_user=$(ls -d /usr/local/directadmin/data/users/*/ | awk -F"/" '{print $(NF-1)}' | awk 'BEGIN{ORS=" "}1')
+
+        array_list_user=($list_user)
+        a=$(echo $list_user | wc -w)
+        array_list_user_domain=()
+        choose_user=()
+        #Lấy danh sách user hiện có
+
+        for ((i = 0; i < $a; i++)); do
+            domain=$(find /usr/local/directadmin/data/users/${array_list_user[i]}/domains -name "*.conf" | awk -F'/' '{print $NF}' | awk -F"." '{ print substr( $0, 1, length($0)-5 ) }' | awk 'BEGIN{ORS=", "}1')
+
+            arr[i]="User: ${array_list_user[i]} -- Domain: $domain"
+            array_list_user_domain[i]=${arr[i]}
+
+        done
+        #Xuất danh sách user hiện có
+        printf '%-80s %-5s \n' "List All User and Domain" "#"
+        for ((i = 0; i < ${#array_list_user_domain[@]}; i++)); do
+            printf '%-80s %-5s \n' "$i) ${array_list_user_domain[i]}" "#"
+        done
+        next
+        #Kiem tra user
+        while true; do
+            echo ""
+            read -p "Enter the $(ColorRed "User name") to Setup Wordpress: " user_wp
+            echo ""
+            i=0
+            while [ $i -lt ${#array_list_user[@]} ]; do
+
+                if [[ $user_wp == ${array_list_user[i]} ]]; then
+                    break
+                fi
+                i=$(expr $i + 1)
+            done
+
+            if [ $i != ${#array_list_user[@]} ]; then
+
+                setupWPNewUser
+                return
+            fi
+
+            if [ $i == ${#array_list_user[@]} ]; then
+                echo -e "User is \e[0;31minvalid\e[0m or \e[0;31mdoes not exist\e[0m, enter again! "
+            fi
+
+        done
+
+        read -p "Enter the $(ColorRed "Password"): " password_user_wp
+        echo ""
+        read -p "Enter the $(ColorRed "Domain"): " domain_user_wp
+        echo ""
+        next
+
+        break
+        ;;
+    0)
         echo -e "Bye!\n"
-        break 
+        return 1
         ;;
 
     *) echo -e "$(ColorRed 'Incorrect value'), Enter again! \n" ;;
