@@ -77,7 +77,7 @@ function checkLogin() {
                 break
             fi
 
-            if [[ ! -s /tmp/loginda.log ]] || [[  -s /tmp/loginda2.log ]]; then
+            if [[ ! -s /tmp/loginda.log ]] || [[ ! -s /tmp/loginda2.log ]]; then
                 break
             fi
 
@@ -86,7 +86,7 @@ function checkLogin() {
         if [[ $(awk -F":" '/LOST_PASSWORD/ {print $1}' /tmp/loginda.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "LOST_PASSWORD" ]] || \
          [[ $(awk -F";" '/Failed connect/ {print $NF}' /tmp/loginda2.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "No route to host" ]] || \
           [[ $(awk -F">" '/<title>404/ {print $2}' /tmp/loginda.log | cut -d"<" -f 1) == "404 Not Found" ]] || \
-           [[ $(awk -F"<h1>" '/Invalid login/ {print $2}' /tmp/loginda.log | cut -d"." -f 1) == "Invalid login" ]] ; then
+           [[ $(awk -F"<h1>" '/Invalid login/ {print $2}' /tmp/loginda.log | cut -d"." -f 1) == "Invalid login" ]] || [[ -s /tmp/loginda2.log ]]; then
             
             echo "Failed Login Directadmin"
             c=$(expr $c + 1)
@@ -202,6 +202,7 @@ password=""
 #Main
 while true; do
     next
+    echo ""
     read -p "=> Do you want to Setup Wordpress (y/n) : " select
     echo ""
 
