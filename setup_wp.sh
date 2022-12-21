@@ -202,13 +202,11 @@ password=""
 #Main
 while true; do
     next
-    echo -e "1) Set up Wordpress\n"
-    echo -e "0) Cancel\n"
-    read -p "=> Your Options : " select
+    read -p "=> Do you want to Setup Wordpress (y/n) : " select
     echo ""
 
     case $select in
-    1)
+    y|yes)
 
         next
         checkLogin
@@ -242,7 +240,7 @@ while true; do
         break
         ;;
 
-    0)
+    n|no)
         echo -e "Bye!\n"
         return 1
         ;;
