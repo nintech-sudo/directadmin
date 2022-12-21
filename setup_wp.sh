@@ -263,6 +263,7 @@ while true; do
 
         done
         #Xuất danh sách user hiện có
+        next
         printf '%-80s %-5s \n' "List All User and Domain" "#"
         for ((i = 0; i < ${#array_list_user_domain[@]}; i++)); do
             printf '%-80s %-5s \n' "$i) ${array_list_user_domain[i]}" "#"
