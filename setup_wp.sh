@@ -242,7 +242,7 @@ while true; do
 
     n|no)
         echo -e "Bye!\n"
-        return 1
+        break 
         ;;
 
     *) echo -e "$(ColorRed 'Incorrect value'), Enter again! \n" ;;
