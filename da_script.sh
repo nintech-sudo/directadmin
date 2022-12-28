@@ -629,7 +629,7 @@ print_speedtest_menu() {
 	printf '%-80s %-5s \n' "9) Singapore" "#"
 	printf '%-80s %-5s \n' "10) HongKong" "#"
 	printf '%-80s %-5s \n' "11) Japan" "#"
-	echo -e "0) Exit \t\t\t\t\t\t\t    \e[34;5;1mCode by Nin\e[0m  #"
+	echo -e "0) Exit \t\t\t\t\t\t\t    \e[34;5;1mCode by NinTech\e[0m  #"
 	next
 }
 
