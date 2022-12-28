@@ -611,7 +611,7 @@ print_menu() {
 	printf '%-80s %-5s \n' "6) Network speed test" "#"
 	printf '%-80s %-5s \n' "7) Setup Wordpress in Directadmin" "#"
 	printf '%-80s %-5s \n' "8) Convert cPanel to Directadmin" "#"
-	echo -e "0) Exit \t\t\t\t\t\t\t    \e[34;5;1mCode by Nin\e[0m  #"
+	echo -e "0) Exit \t\t\t\t\t\t\t    \e[34;5;1mCode by NinTech\e[0m  #"
 	next
 }
 
