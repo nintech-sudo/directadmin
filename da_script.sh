@@ -209,12 +209,12 @@ function backupUser() {
 								yum -y install rsync >/dev/null 2>&1
 							fi
 							echo -e "Rsync backup file to remote server\n"
+							sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
 							ionice -c 2 -n 5 rsync -pqav --progress --remove-source-files --rsh="/usr/bin/sshpass -p "$password" ssh -o StrictHostKeyChecking=no -l root" /home/admin/admin_backups/file_backup/$filebackup $username@$ip:/home/admin/admin_backups/file_backup >/tmp/rsynlog.txt 2>&1
 
 							if [ -s /tmp/rsynlog.txt ] && [ "$(grep -wi "failed - POSSIBLE BREAK-IN ATTEMPT" /tmp/rsynlog.txt | awk -F"-" '{print $2}')" == " POSSIBLE BREAK" ]; then
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n"
-								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'rm -rf /home/admin/admin_backups/restore.sh'
@@ -227,7 +227,6 @@ function backupUser() {
 							else
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n"
-								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'rm -rf /home/admin/admin_backups/restore.sh'
