@@ -56,10 +56,12 @@ next() {
     printf "%-82s\n" "#" | sed 's/\s/#/g'
 }
 
+
+ip=$(curl -s http://ip.vinahost.vn)
+port=$(netstat -ntulp | grep directadmin | awk -F":::" '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//')
+
 function checkLogin() {
 
-    ip=$(curl -s http://ip.vinahost.vn)
-    port=$(netstat -ntulp | grep directadmin | awk -F":::" '{print $2}'| sed 's/^[ \t]*//;s/[ \t]*$//')
     echo -e "$(ColorBlue "Checking Login Dirrectadmin")\n"
     echo -e "Server: $ip:$port \n"
     read -p "=> Please enter $(ColorRed "Username Admin"): " username
@@ -86,11 +88,11 @@ function checkLogin() {
 
         done
 
-        if [[ $(awk -F":" '/LOST_PASSWORD/ {print $1}' /tmp/loginda.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "LOST_PASSWORD" ]] || \
-         [[ $(awk -F";" '/Failed connect/ {print $NF}' /tmp/loginda2.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "No route to host" ]] || \
-          [[ $(awk -F">" '/<title>404/ {print $2}' /tmp/loginda.log | cut -d"<" -f 1) == "404 Not Found" ]] || \
-           [[ $(awk -F"<h1>" '/Invalid login/ {print $2}' /tmp/loginda.log | cut -d"." -f 1) == "Invalid login" ]] || [[ -s /tmp/loginda2.log ]]; then
-            
+        if [[ $(awk -F":" '/LOST_PASSWORD/ {print $1}' /tmp/loginda.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "LOST_PASSWORD" ]] ||
+            [[ $(awk -F";" '/Failed connect/ {print $NF}' /tmp/loginda2.log | sed 's/^[ \t]*//;s/[ \t]*$//') == "No route to host" ]] ||
+            [[ $(awk -F">" '/<title>404/ {print $2}' /tmp/loginda.log | cut -d"<" -f 1) == "404 Not Found" ]] ||
+            [[ $(awk -F"<h1>" '/Invalid login/ {print $2}' /tmp/loginda.log | cut -d"." -f 1) == "Invalid login" ]] || [[ -s /tmp/loginda2.log ]]; then
+
             echo "Failed Login Directadmin"
             c=$(expr $c + 1)
             if [ $c -eq 3 ]; then
@@ -135,7 +137,7 @@ function setupWPNewUser() {
         fi
         break
     done
- 
+
     if [[ -s /home/$user_wp/public_html ]]; then
         echo -e "Installing Wordpress... \n"
         installWordPress
@@ -165,8 +167,8 @@ function installWordPress() {
 
     #install ssl
     echo -e "Installing SSL for $domain_user_wp\n"
-    if [[ ! -s /usr/local/directadmin/scripts/letsencrypt.sh ]] ; then
-        
+    if [[ ! -s /usr/local/directadmin/scripts/letsencrypt.sh ]]; then
+
         cd /usr/local/directadmin/custombuild
         ./build update
         sed -i 's/doDAVersionCheck$/doDAVersionCheck:/' build
@@ -176,10 +178,9 @@ function installWordPress() {
     sed -i 's/dns_ttl=.*/dns_ttl=1/g' /usr/local/directadmin/conf/directadmin.conf
     sed -i 's/letsencrypt=.*/letsencrypt=1/g' /usr/local/directadmin/conf/directadmin.conf
 
-    
     cd /usr/local/directadmin/scripts
     ./letsencrypt.sh request $(cat /usr/local/directadmin/conf/directadmin.conf | awk -F"=" '/servername/ {print $2}'),$domain_user_wp,www.$domain_user_wp 4096
-        
+
     cd /home/$user_wp
     next
     #Xuat thong tin
@@ -189,7 +190,6 @@ function installWordPress() {
     echo -e "User phpMyAdmin: $user_wp - Password: $password_user_wp"
     echo -e "User Wordpress: admin - Password: $password_user_wp"
 
-
 }
 
 #Lay danh sach user hien co
@@ -197,7 +197,6 @@ array_list_user=($(ls -d /usr/local/directadmin/data/users/*/ | awk -F"/" '{prin
 user_wp=""
 password_user_wp=""
 domain_user_wp=""
-ip=""
 username=""
 password=""
 
@@ -209,7 +208,7 @@ while true; do
     echo ""
 
     case $select in
-    y|yes)
+    y | yes)
 
         next
         checkLogin
@@ -243,9 +242,9 @@ while true; do
         break
         ;;
 
-    n|no)
+    n | no)
         echo -e "Bye!\n"
-        break 
+        break
         ;;
 
     *) echo -e "$(ColorRed 'Incorrect value'), Enter again! \n" ;;
