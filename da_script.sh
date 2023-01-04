@@ -209,10 +209,10 @@ function backupUser() {
 								yum -y install rsync >/dev/null 2>&1
 							fi
 							sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip '[ -e '/usr/bin/rsync' ]'
-							if [ $? -eq 0 ]; then
+							if [ $? -eq 1 ]; then
 								echo -e "Installing packages..."
 								echo -e "Please wait..."
-								yum -y install rsync wget >/dev/null 2>&1
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'yum -y install rsync wget >/dev/null 2>&1'
 							fi
 							echo -e "Rsync backup file \e[0;31m$filebackup\e[0m to remote server...\n"
 							sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
