@@ -213,7 +213,7 @@ function backupUser() {
 
 							if [ -s /tmp/rsynlog.txt ] && [ "$(grep -wi "failed - POSSIBLE BREAK-IN ATTEMPT" /tmp/rsynlog.txt | awk -F"-" '{print $2}')" == " POSSIBLE BREAK" ]; then
 								echo -e "Success Rsync for user $x\n"
-								echo -e "In progress to restore for users $x\n" 
+								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
@@ -241,7 +241,7 @@ function backupUser() {
 
 						sleep 5
 					done
-				
+
 				else
 					echo -e "Can't creating a backup file for user \e[0;31m${choose_user[@]}\e[0m ...\n"
 				fi
@@ -258,7 +258,7 @@ function backupUser() {
 						echo "action=backup&append%5Fto%5Fpath=nothing&database%5Fdata%5Faware=yes&email%5Fdata%5Faware=yes&local%5Fpath=%2Fhome%2Fadmin%2Fadmin%5Fbackups%2Ffile%5Fbackup&owner=admin&select%30=$x&type=admin&value=multiple&when=now&where=local" >>/usr/local/directadmin/data/task.queue
 						/usr/local/directadmin/dataskq d2000 >/dev/null
 					done
-				echo "Success"
+					echo "Success"
 				else
 					echo -e "Can't creating a backup file for user \e[0;31m${choose_user[@]}\e[0m ...\n"
 				fi
@@ -357,6 +357,13 @@ function free_up_disk_space() {
 		echo -e "Disk space after cleaned up...\n"
 		sleep 2
 		echo -e "$(df -h) \n"
+		next
+		echo -e "List of 10 compressed files that take up a lot of space in the \e[0;31m/home/\e[0m directory\n"
+		find /home/ -type f \( -name '*.tar.gz' -or -name '*.tar' -or -name '*.zip'-or -name '*.tar.bz2' \) -exec du -sh {} + | sort -rh | head -10
+		echo ""
+		next
+		echo -e "List of 10 files larger than 100MB in \e[0;31m/var/log/\e[0m directory\n"
+		find /var/log/ -type f \( -name '*.tar.gz' -or -name '*.tar' -or -name '*.zip'-or -name '*.tar.bz2' -or -size +100M \) -exec du -sh {} + | sort -rh | head -10
 
 	}
 
