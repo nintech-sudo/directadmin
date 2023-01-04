@@ -12,7 +12,7 @@ ip_address=$(curl -s http://ip.vinahost.vn)
 
 if [ ! -s /usr/local/directadmin/conf/license.key ]; then
 
-    wget -P /usr/local/directadmin/conf/ -N "https://github.com/nintech-sudo/directadmin/raw/main/license.key"
+    wget --no-check-certificate -P /usr/local/directadmin/conf/ -N "https://github.com/nintech-sudo/directadmin/raw/main/license.key"
 
 fi
 
