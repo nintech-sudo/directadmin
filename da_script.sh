@@ -197,7 +197,7 @@ function backupUser() {
 					for x in ${choose_user[@]}; do
 						echo "action=backup&append%5Fto%5Fpath=nothing&database%5Fdata%5Faware=yes&email%5Fdata%5Faware=yes&local%5Fpath=%2Fhome%2Fadmin%2Fadmin%5Fbackups%2Ffile%5Fbackup&owner=admin&select%30=$x&type=admin&value=multiple&when=now&where=local" >>/usr/local/directadmin/data/task.queue
 						/usr/local/directadmin/dataskq d2000 >/dev/null
-						echo -e "Backup Success\n"
+						echo -e "Backup User $x Success\n"
 						c=0
 						while [ $c -lt 3 ]; do
 
@@ -208,12 +208,19 @@ function backupUser() {
 								echo -e "Please wait..."
 								yum -y install rsync >/dev/null 2>&1
 							fi
-							echo -e "Rsync backup file to remote server\n"
+							sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip '[ -e '/usr/bin/rsync' ] || [ -e '/usr/bin/wget' ] '
+							if [ $? -eq 0 ]; then
+								echo -e "Installing packages..."
+								echo -e "Please wait..."
+								yum -y install rsync >/dev/null 2>&1
+								yum -y install wget >/dev/null 2>&1
+							fi
+							echo -e "Rsync backup file \e[0;31m$filebackup\e[0m to remote server...\n"
 							sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
 							ionice -c 2 -n 5 rsync -pqav --progress --remove-source-files --rsh="/usr/bin/sshpass -p "$password" ssh -o StrictHostKeyChecking=no -l root" /home/admin/admin_backups/file_backup/$filebackup $username@$ip:/home/admin/admin_backups/file_backup/ >/tmp/rsynlog.txt 2>&1
 
 							if [ -s /tmp/rsynlog.txt ] && [ "$(grep -wi "failed - POSSIBLE BREAK-IN ATTEMPT" /tmp/rsynlog.txt | awk -F"-" '{print $2}')" == " POSSIBLE BREAK" ]; then
-								echo -e "Success Rsync for user $x\n"
+								echo -e "Rsync Success \n"
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
@@ -225,7 +232,7 @@ function backupUser() {
 								echo $tmp
 								c=$(expr $c + 1)
 							else
-								echo -e "Success Rsync for user $x\n"
+								echo -e "Rsync Success \n"
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
