@@ -215,7 +215,7 @@ function backupUser() {
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n" 
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
-								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://gitlab.vinahost.vn/nintech-sudo/directadmin/-/raw/main/restore.sh"'
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'rm -rf /home/admin/admin_backups/restore.sh'
 								break
@@ -228,7 +228,7 @@ function backupUser() {
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
-								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://gitlab.vinahost.vn/nintech-sudo/directadmin/-/raw/main/restore.sh"'
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'rm -rf /home/admin/admin_backups/restore.sh'
 								break
@@ -683,7 +683,7 @@ main() {
 			backupUser
 			;;
 		3)
-			wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://gitlab.vinahost.vn/nintech-sudo/directadmin/-/raw/main/restore.sh"
+			wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"
 			bash /home/admin/admin_backups/restore.sh
 			rm -rf /home/admin/admin_backups/restore.sh
 			;;
@@ -725,12 +725,12 @@ main() {
 			opt=69
 			;;
 		7)
-			wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://gitlab.vinahost.vn/nintech-sudo/directadmin/-/raw/main/setup_wp.sh"
+			wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/setup_wp.sh"
 			bash /home/admin/admin_backups/setup_wp.sh
 			rm -rf /home/admin/admin_backups/setup_wp.sh
 			;;
 		8)
-			wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://gitlab.vinahost.vn/nintech-sudo/directadmin/-/raw/main/Convert-Cpanel-to-Directadmin/convert_cp_to_da.sh"
+			wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/Convert-Cpanel-to-Directadmin/convert_cp_to_da.sh"
 			bash /home/admin/admin_backups/convert_cp_to_da.sh
 			rm -rf /home/admin/admin_backups/convert_cp_to_da.sh
 			;;
