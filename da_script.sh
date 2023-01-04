@@ -28,21 +28,26 @@ function backupUser() {
 	function getUsers() {
 
 		for ((i = 0; i < $a; i++)); do
+			disk_user_used_home=$(du -s /home/${array_list_user[i]}/ | cut -d"/" -f 1)
+			disk_user_used_mysql=$(du -sc /var/lib/mysql/${array_list_user[i]}* 2>/dev/null | grep -e "total" | awk '{print $1}')
+			total_disk_user_used=$(expr $disk_user_used_home + $disk_user_used_mysql)
+			total_disk_user_usedGB=$(echo $total_disk_user_used/1024/1024 | bc -l)
 			domain=$(find /usr/local/directadmin/data/users/${array_list_user[i]}/domains -name "*.conf" | awk -F'/' '{print $NF}' | awk -F"." '{ print substr( $0, 1, length($0)-5 ) }' | awk 'BEGIN{ORS=", "}1')
 
-			arr[i]="User: ${array_list_user[i]} -- Domain: $domain"
+			arr[i]=$(printf '%-20s %-34s %-17s %-1s \n' "User: ${array_list_user[i]}" "Domain: $domain" "Disk Usage: $(awk 'BEGIN{printf "%.2f", '$total_disk_user_usedGB' }')" "GB")
+
 			array_list_user_domain[i]=${arr[i]}
 
 		done
 	}
 
-	#Kiểm tra user 
+	#Kiểm tra user
 	function checkUsers() {
 
 		while true; do
 			echo -e "Enter the User name to create backup (Max 5 user)\nExample: user1 user2 user3\n"
 			read -p "Your choices: " choose1 choose2 choose3 choose4 choose5
-			if [ $choose1 == "c" ] || [ -z $choose1 ] ; then
+			if [ $choose1 == "c" ] || [ -z $choose1 ]; then
 				return
 			fi
 
@@ -78,51 +83,63 @@ function backupUser() {
 	#Kiểm tra dung lượng của user có vượt dung lượng cho phép không
 	function checkQuota() {
 
-		disk_system_available=$(df -k | grep -w "/" | awk '{print $4}')
-		total_disk_user_used=0
-
-		for ((i = 0; i < ${#choose_user[@]}; i++)); do
-			disk_user_used=$(du -s /home/${choose_user[i]}/ | cut -d"/" -f 1)
-			total_disk_user_used=$(expr $total_disk_user_used + $disk_user_used)
-		done
-
-		pass_quota=""
-
-		echo -e "Checking disk space...\n"
-
 		if [ ! -e '/usr/bin/bc' ]; then
 			echo -e "Installing packages..."
 			echo -e "Please wait..."
 			yum -y install bc >/dev/null 2>&1
 		fi
 
-		echo -e "Total usage of User need to backup: $(awk 'BEGIN{printf "%.2f", '$total_disk_user_used'/1024/1024}')Gb\n"
-		sleep 5
+		disk_system_available=$(df -k | grep -w "/" | awk '{print $4}')
+		disk_user_used_home=0
+		disk_user_used_mysql=0
+		total_disk_user_used=0
+		pass_quota="true"
 
-		if [[ $total_disk_user_used -gt $disk_system_available ]]; then
-			echo -e "Free disk space is \e[0;31mnot available\e[0m to create backup files, need to free up space!\n"
-			sleep 2
+		echo -e "Checking disk space...\n"
+		i=0
+		while [ $i -lt ${#choose_user[@]} ]; do
+			disk_user_used_home=$(du -s /home/${choose_user[i]}/ | cut -d"/" -f 1)
+			disk_user_used_mysql=$(du -sc /var/lib/mysql/${choose_user[i]}* | grep -e "total" | awk '{print $1}')
+			total_disk_user_used=$(expr $disk_user_used_home + $disk_user_used_mysql)
+
+			if [[ $total_disk_user_used -gt $disk_system_available ]]; then
+
+				total_disk_user_usedGB=$(echo $total_disk_user_used/1024/1024 | bc -l)
+				echo -e "Total usage of User \e[0;31m${choose_user[i]}\e[0m need to backup: \e[0;31m$(awk 'BEGIN{printf "%.2f", '$total_disk_user_usedGB' }')\e[0m GB\n"
+				echo -e "Free disk space is \e[0;31mnot available\e[0m to create backup files, need to free up space!\n"
+				sleep 2
+				pass_quota="false"
+			fi
+			i=$(expr $i + 1)
+		done
+		if [ $pass_quota == "false" ]; then
 			free_up_disk_space
 			disk_system_available_after_cleanup=$(df -k | grep -w "/" | awk '{print $4}')
 			if [[ $total_disk_user_used -gt $disk_system_available_after_cleanup ]]; then
 				echo -e "\e[0;31mNeed to free up more disk space or upgrade\e[0m\n"
+				next
+				echo -e "List of 10 compressed files that take up a lot of space in the \e[0;31m/home/\e[0m directory\n"
+				find /home/ -type f \( -name '*.tar.gz' -or -name '*.tar' -or -name '*.zip'-or -name '*.tar.bz2' \) -exec du -sh {} + | sort -rh | head -10
+				echo ""
+				next
+				echo -e "List of 10 files larger than 100MB in \e[0;31m/var/log/\e[0m directory\n"
+				find /var/log/ -type f \( -name '*.tar.gz' -or -name '*.tar' -or -name '*.zip'-or -name '*.tar.bz2' -or -size +100M \) -exec du -sh {} + | sort -rh | head -10
 				pass_quota="false"
 				return 1
 			else
 				pass_quota="true"
-				createBackup
-				return 0
 			fi
-		else
-			echo -e "Free disk space \e[0;31mavailable\e[0m to create backup files.\n"
-			pass_quota="true"
+		fi
+
+		if [ $pass_quota == "true" ]; then
+			echo -e "Free disk space \e[0;31mavailable\e[0m to create backup files for user \e[0;31m${choose_user[i]}\e[0m.\n"
 			createBackup
-			return 0
+			return
 		fi
 
 	}
 
-	pass_quota=$checkQuota
+	#pass_quota=$checkQuota
 	#Tạo file backup và rsyns đến VPS mới
 	function createBackup() {
 
@@ -179,8 +196,8 @@ function backupUser() {
 
 					for x in ${choose_user[@]}; do
 						echo "action=backup&append%5Fto%5Fpath=nothing&database%5Fdata%5Faware=yes&email%5Fdata%5Faware=yes&local%5Fpath=%2Fhome%2Fadmin%2Fadmin%5Fbackups%2Ffile%5Fbackup&owner=admin&select%30=$x&type=admin&value=multiple&when=now&where=local" >>/usr/local/directadmin/data/task.queue
-						/usr/local/directadmin/dataskq d2000
-
+						/usr/local/directadmin/dataskq d2000 >/dev/null
+						echo -e "Backup Success\n"
 						c=0
 						while [ $c -lt 3 ]; do
 
@@ -191,14 +208,14 @@ function backupUser() {
 								echo -e "Please wait..."
 								yum -y install rsync >/dev/null 2>&1
 							fi
-
+							echo -e "Rsync backup file to remote server\n"
 							ionice -c 2 -n 5 rsync -pqav --progress --remove-source-files --rsh="/usr/bin/sshpass -p "$password" ssh -o StrictHostKeyChecking=no -l root" /home/admin/admin_backups/file_backup/$filebackup $username@$ip:/home/admin/admin_backups/file_backup >/tmp/rsynlog.txt 2>&1
 
 							if [ -s /tmp/rsynlog.txt ] && [ "$(grep -wi "failed - POSSIBLE BREAK-IN ATTEMPT" /tmp/rsynlog.txt | awk -F"-" '{print $2}')" == " POSSIBLE BREAK" ]; then
 								echo -e "Success Rsync for user $x\n"
-								echo -e "In progress to restore for users $x\n"
+								echo -e "In progress to restore for users $x\n" 
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
-								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://gitlab.vinahost.vn/nintech-sudo/directadmin/-/raw/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'rm -rf /home/admin/admin_backups/restore.sh'
 								break
@@ -211,7 +228,7 @@ function backupUser() {
 								echo -e "Success Rsync for user $x\n"
 								echo -e "In progress to restore for users $x\n"
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip ' yum -y install wget sshpass rsync >/dev/null '
-								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"'
+								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://gitlab.vinahost.vn/nintech-sudo/directadmin/-/raw/main/restore.sh"'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'bash /home/admin/admin_backups/restore.sh'
 								sshpass -p "$password" ssh -o "StrictHostKeyChecking=no" $username@$ip 'rm -rf /home/admin/admin_backups/restore.sh'
 								break
@@ -224,7 +241,7 @@ function backupUser() {
 
 						sleep 5
 					done
-
+				
 				else
 					echo -e "Can't creating a backup file for user \e[0;31m${choose_user[@]}\e[0m ...\n"
 				fi
@@ -239,8 +256,9 @@ function backupUser() {
 					sleep 10
 					for x in ${choose_user[@]}; do
 						echo "action=backup&append%5Fto%5Fpath=nothing&database%5Fdata%5Faware=yes&email%5Fdata%5Faware=yes&local%5Fpath=%2Fhome%2Fadmin%2Fadmin%5Fbackups%2Ffile%5Fbackup&owner=admin&select%30=$x&type=admin&value=multiple&when=now&where=local" >>/usr/local/directadmin/data/task.queue
-						/usr/local/directadmin/dataskq d2000
+						/usr/local/directadmin/dataskq d2000 >/dev/null
 					done
+				echo "Success"
 				else
 					echo -e "Can't creating a backup file for user \e[0;31m${choose_user[@]}\e[0m ...\n"
 				fi
@@ -257,9 +275,8 @@ function backupUser() {
 		done
 
 	}
-
+	echo -e "\e[1;34mList All User and Domain \e[0m"
 	getUsers
-	echo -e "\e[1;34m List All User and Domain \e[0m"
 	next
 	for ((i = 0; i < ${#array_list_user_domain[@]}; i++)); do
 		printf '%-80s %-5s \n' "$i) ${array_list_user_domain[i]}" "#"
@@ -350,7 +367,7 @@ function free_up_disk_space() {
 		echo ""
 		case $select in
 		y)
-			echo " In progress cleanup disk space... "
+			echo "In progress cleanup disk space... "
 			sleep 2
 			cleanupDisk
 			break
@@ -666,7 +683,7 @@ main() {
 			backupUser
 			;;
 		3)
-			wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/restore.sh"
+			wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://gitlab.vinahost.vn/nintech-sudo/directadmin/-/raw/main/restore.sh"
 			bash /home/admin/admin_backups/restore.sh
 			rm -rf /home/admin/admin_backups/restore.sh
 			;;
@@ -708,12 +725,12 @@ main() {
 			opt=69
 			;;
 		7)
-			wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/setup_wp.sh"
+			wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://gitlab.vinahost.vn/nintech-sudo/directadmin/-/raw/main/setup_wp.sh"
 			bash /home/admin/admin_backups/setup_wp.sh
 			rm -rf /home/admin/admin_backups/setup_wp.sh
 			;;
 		8)
-			wget -P /home/admin/admin_backups/ -N "https://raw.githubusercontent.com/nintech-sudo/directadmin/main/Convert-Cpanel-to-Directadmin/convert_cp_to_da.sh"
+			wget --no-check-certificate -P /home/admin/admin_backups/ -N "https://gitlab.vinahost.vn/nintech-sudo/directadmin/-/raw/main/Convert-Cpanel-to-Directadmin/convert_cp_to_da.sh"
 			bash /home/admin/admin_backups/convert_cp_to_da.sh
 			rm -rf /home/admin/admin_backups/convert_cp_to_da.sh
 			;;
@@ -727,6 +744,7 @@ main() {
 		printf "Press [Enter] to back to Main menu..."
 		read
 	done
+
 }
 
 clear

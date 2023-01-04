@@ -57,8 +57,11 @@ next() {
 }
 
 function checkLogin() {
+
+    ip=$(curl -s http://ip.vinahost.vn)
+    port=$(netstat -ntulp | grep directadmin | awk -F":::" '{print $2}'| sed 's/^[ \t]*//;s/[ \t]*$//')
     echo -e "$(ColorBlue "Checking Login Dirrectadmin")\n"
-    read -p "=> Please enter $(ColorRed "IP and Port") of server: " ip
+    echo -e "Server: $ip:$port \n"
     read -p "=> Please enter $(ColorRed "Username Admin"): " username
     read -p "=> Please enter $(ColorRed "Password"): " password
 
@@ -67,13 +70,13 @@ function checkLogin() {
 
         while true; do
 
-            curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_LOGIN" >/tmp/loginda.log
-            curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_LOGIN" 2>/tmp/loginda2.log
+            curl --insecure --request "POST" --user "$username:$password" "https://$ip:$port/CMD_LOGIN" >/tmp/loginda.log
+            curl --insecure --request "POST" --user "$username:$password" "https://$ip:$port/CMD_LOGIN" 2>/tmp/loginda2.log
 
             if [[ $(cat /tmp/loginda2.log) == "curl: (35) TCP connection reset by peer" ]]; then
 
-                curl --request "POST" --user "$username:$password" "http://$ip/CMD_LOGIN" >/tmp/loginda.log
-                curl --request "POST" --user "$username:$password" "http://$ip/CMD_LOGIN" 2>/tmp/loginda2.log
+                curl --request "POST" --user "$username:$password" "http://$ip:$port/CMD_LOGIN" >/tmp/loginda.log
+                curl --request "POST" --user "$username:$password" "http://$ip:$port/CMD_LOGIN" 2>/tmp/loginda2.log
                 break
             fi
 
@@ -94,7 +97,6 @@ function checkLogin() {
                 exit 1
             fi
             echo -e "\e[0;31mAgain!\e[0m"
-            read -p "=> Please enter $(ColorRed "IP and Port") of server: " ip
             read -p "=> Please enter $(ColorRed "Username Admin"): " username
             read -p "=> Please enter $(ColorRed "Password"): " password
         else
@@ -117,25 +119,25 @@ function setupWPNewUser() {
 
         #Create New User in Directadmin
 
-        curl --insecure --request "POST" --user "$username:$password" "https://$ip/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create" 2>/tmp/loginda2.log
+        curl --insecure --request "POST" --user "$username:$password" "https://$ip:$port/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create" 2>/tmp/loginda2.log
         echo ""
         #Create Database for new user in Directadmin
-        curl --insecure --request "POST" --user "$user_wp:$password_user_wp" "https://$ip/CMD_API_DATABASES?name="$user_wp"db&user=$user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&action=create" 2>/tmp/loginda2.log
+        curl --insecure --request "POST" --user "$user_wp:$password_user_wp" "https://$ip:$port/CMD_API_DATABASES?name="$user_wp"db&user=$user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&action=create" 2>/tmp/loginda2.log
 
         if [[ $(cat /tmp/loginda2.log) == "curl: (35) TCP connection reset by peer" ]]; then
 
             #Create New User in Directadmin
-            curl --request "POST" --user "$username:$password" "http://$ip/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create"
+            curl --request "POST" --user "$username:$password" "http://$ip:$port/CMD_API_ACCOUNT_USER?username=$user_wp&email=admin@$domain_user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&domain=$domain_user_wp&notify=yes&ip=$(echo $ip | cut -d":" -f 1)&cgi=ON&php=ON&spam=ON&ssl=ON&sysinfo=ON&dnscontrol=ON&skin=evolution&cron=ON&notify=ON&add=Submit&action=create"
             echo ""
             #Create Database for new user in Directadmin
-            curl --request "POST" --user "$user_wp:$password_user_wp" "http://$ip/CMD_API_DATABASES?name="$user_wp"db&user=$user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&action=create"
+            curl --request "POST" --user "$user_wp:$password_user_wp" "http://$ip:$port/CMD_API_DATABASES?name="$user_wp"db&user=$user_wp&passwd=$password_user_wp&passwd2=$password_user_wp&action=create"
             break
         fi
         break
     done
  
     if [[ -s /home/$user_wp/public_html ]]; then
-
+        echo -e "Installing Wordpress... \n"
         installWordPress
         break
 
