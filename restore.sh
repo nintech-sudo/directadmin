@@ -34,7 +34,7 @@ else
         echo "action=restore&ip%5Fchoice=file&local%5Fpath=%2Fhome%2Fadmin%2Fadmin%5Fbackups%2Ffile%5Fbackup&owner=admin&select%30=$file_backup_tar&type=admin&value=multiple&when=now&where=local" >>/usr/local/directadmin/data/task.queue
         /usr/local/directadmin/dataskq d2000 > /dev/null
         rm -rf /home/admin/admin_backups/file_backup/$file_backup_tar
-        echo "Restore Success"
+        echo -e "Restore Success\n"
     done
 fi
 
