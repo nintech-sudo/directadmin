@@ -25,6 +25,11 @@ function backupUser() {
 	array_list_user_domain=()
 	choose_user=()
 	#Lấy danh sách user hiện có
+	if [ ! -e '/usr/bin/bc' ]; then
+		echo -e "Installing packages..."
+		echo -e "Please wait..."
+		yum -y install bc >/dev/null 2>&1
+	fi
 	function getUsers() {
 
 		for ((i = 0; i < $a; i++)); do
@@ -82,12 +87,6 @@ function backupUser() {
 
 	#Kiểm tra dung lượng của user có vượt dung lượng cho phép không
 	function checkQuota() {
-
-		if [ ! -e '/usr/bin/bc' ]; then
-			echo -e "Installing packages..."
-			echo -e "Please wait..."
-			yum -y install bc >/dev/null 2>&1
-		fi
 
 		disk_system_available=$(df -k | grep -w "/" | awk '{print $4}')
 		disk_user_used_home=0
