@@ -165,21 +165,21 @@ function installWordPress() {
     sed -i "s/Weaving Feathers/VINAHOST/g" /home/$user_wp/public_html/wp-content/themes/photobrust/inc/patterns/header-media.php
     sed -i "s/Make your photos look brilliant/Created by NinTech/g" /home/$user_wp/public_html/wp-content/themes/photobrust/inc/patterns/header-media.php
 
-    #install ssl
-    echo -e "Installing SSL for $domain_user_wp\n"
-    if [[ ! -s /usr/local/directadmin/scripts/letsencrypt.sh ]]; then
+#    #install ssl
+#    echo -e "Installing SSL for $domain_user_wp\n"
+#    if [[ ! -s /usr/local/directadmin/scripts/letsencrypt.sh ]]; then
+#
+#        cd /usr/local/directadmin/custombuild
+#        ./build update
+#        sed -i 's/doDAVersionCheck$/doDAVersionCheck:/' build
+#        ./build letsencrypt
+#        break
+#    fi
+#    sed -i 's/dns_ttl=.*/dns_ttl=1/g' /usr/local/directadmin/conf/directadmin.conf
+#    sed -i 's/letsencrypt=.*/letsencrypt=1/g' /usr/local/directadmin/conf/directadmin.conf
 
-        cd /usr/local/directadmin/custombuild
-        ./build update
-        sed -i 's/doDAVersionCheck$/doDAVersionCheck:/' build
-        ./build letsencrypt
-        break
-    fi
-    sed -i 's/dns_ttl=.*/dns_ttl=1/g' /usr/local/directadmin/conf/directadmin.conf
-    sed -i 's/letsencrypt=.*/letsencrypt=1/g' /usr/local/directadmin/conf/directadmin.conf
-
-    cd /usr/local/directadmin/scripts
-    ./letsencrypt.sh request $(cat /usr/local/directadmin/conf/directadmin.conf | awk -F"=" '/servername/ {print $2}'),$domain_user_wp,www.$domain_user_wp 4096
+#    cd /usr/local/directadmin/scripts
+#    ./letsencrypt.sh request $(cat /usr/local/directadmin/conf/directadmin.conf | awk -F"=" '/servername/ {print $2}'),$domain_user_wp,www.$domain_user_wp 4096
 
     cd /home/$user_wp
     next
